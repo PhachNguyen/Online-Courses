@@ -1,0 +1,43 @@
+.login-container {
+    /* Độ dài */
+    height: auto;
+    /*  Biến phần tử cha thành flex container để sắp xếp theo trục chính(ngang)  */
+    display: flex;
+    justify-content: center;
+    /*  Canh chỉnh vị trí các phần tử con theo chiều vuông góc ( chiều dọc */
+    align-items: center;
+    /*  Sắp xếp các phần tử con  */
+    /* flex-direction */
+    background-color: #f3f4f6;
+}
+
+.login-box {
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 300px;
+}
+
+.login-box h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.login-input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.login-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
