@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import login_learning from "../assets/images/login_learning.png";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { Link } from "react-router-dom";
 
 export default function RegisterPage() {
     const [fullName, setFullName] = useState("");
@@ -155,9 +156,9 @@ export default function RegisterPage() {
 
                         <div className="text-center mt-4 text-sm text-gray-600 pb-5">
                             Bạn đã có tài khoản?
-                            <a href="/login" className="ml-1 text-blue-600 font-medium hover:underline ">
+                            <Link to="/login" className="text-blue-600 font-medium hover:underline ml-1">
                                 Đăng nhập
-                            </a>
+                            </Link>
                         </div>
                     </form>
                 </div>
