@@ -1,29 +1,36 @@
-// import { useState } from 'react'
-// import reactLogo from './assets/react.svg'
-// import viteLogo from '/vite.svg'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import Login from './pages/Login';
-import './App.css'
+import Dashboard from './pages/Dashboard';
+import ProtectedRoute from './components/ProtectedRoute';
+import useAuthStore from './store/authStore';
+import './App.css';
 
-function Test(props) {
-  console.log(props);
-  return (
-
-    <ul>
-      {props.items.map(task => <li key={task}>{task}</li>)}
-    </ul>
-  )
-}
-// Sử dụng props
-// 
 function App() {
+  const { checkAuth } = useAuthStore();
 
-  // const tasks = ["Test", "Học bài", "Chơi game"];
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
   return (
-    <>
-      <Login />
-      {/* <Test items={tasks}></Test> */}
-    </>
-  )
+    <Router>
+      <div className="App">
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </div>
+    </Router>
+  );
 }
 
-export default App
+export default App;
