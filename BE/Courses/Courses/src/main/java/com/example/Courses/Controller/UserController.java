@@ -1,6 +1,6 @@
 //package com.example.Courses.Controller;
 //
-//import com.example.Courses.Domain.User;
+//import com.example.Courses.Domain.model.User;
 //import com.example.Courses.Domain.response.ResCreateUserDTO;
 //import com.example.Courses.Repository.UserRepository;
 //import com.example.Courses.Service.UserService;

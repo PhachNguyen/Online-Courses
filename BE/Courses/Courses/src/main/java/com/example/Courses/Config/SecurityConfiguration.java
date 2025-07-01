@@ -1,6 +1,9 @@
 package com.example.Courses.Config;
 
 //import lombok.Value;
+import com.example.Courses.Util.SecurityUtil;
+import com.nimbusds.jose.jwk.source.ImmutableSecret;
+import com.nimbusds.jose.util.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,7 +13,14 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 @Configuration
 // Bật tính năng bảo mật ở muc method
@@ -38,7 +48,7 @@ public class SecurityConfiguration {
 //         Gọi các phương thức của class HttpSecurity
         http
                 .csrf(c->c.disable()) // Lambda Expression , Tat csrf
-                .cors(Customizer.withDefaults()) // Cho phép gọi từ FE khác
+                .cors(Customizer.withDefaults()) // Kích hoạt cors
                 .authorizeHttpRequests(
                         // Cho phép các trang truy cập
                     authz-> authz
@@ -59,5 +69,31 @@ public class SecurityConfiguration {
                             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
+    }
+//     Mã hóa JWT
+    @Bean public JwtEncoder jwtEncoder() {
+      return new  NimbusJwtEncoder (new ImmutableSecret<>(getSecretKey()));
+
+    }
+    private SecretKey getSecretKey() {
+        byte[] keyBytes= Base64.from(jwtKey).decode(); // Giai mã key
+        return new SecretKeySpec(keyBytes, 0,keyBytes.length,
+                SecurityUtil.JWT_ALGORITHM.getName()
+        );
+    }
+
+//    Giải mã JWT
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(
+                getSecretKey()).macAlgorithm(SecurityUtil.JWT_ALGORITHM).build();
+        return token -> {
+            try {
+                return jwtDecoder.decode(token);
+            } catch (Exception e) {
+                System.out.println(">>> JWT error: " + e.getMessage());
+                throw e;
+            }
+        };
     }
 }

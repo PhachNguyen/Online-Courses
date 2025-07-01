@@ -1,4 +1,4 @@
-package com.example.Courses.Domain;
+package com.example.Courses.Domain.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
