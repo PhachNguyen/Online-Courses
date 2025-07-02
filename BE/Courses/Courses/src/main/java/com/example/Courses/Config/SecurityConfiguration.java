@@ -7,6 +7,7 @@ import com.nimbusds.jose.util.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -26,6 +27,10 @@ import javax.crypto.spec.SecretKeySpec;
 // Bật tính năng bảo mật ở muc method
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration {
+    private final CustomOauth2SuccessHandler customOauth2SuccessHandler;
+    public SecurityConfiguration(CustomOauth2SuccessHandler customOauth2SuccessHandler) {
+        this.customOauth2SuccessHandler = customOauth2SuccessHandler;
+    }
 @Value("${phachnguyen.jwt.base64-secret}")
     private  String jwtKey;
 // Encode password
@@ -43,7 +48,9 @@ public class SecurityConfiguration {
                 "/api/v1/email/**",
                 "/v3/api-docs/**",
                 "/swagger-ui/**",
-                "/swagger-ui.html"
+                "/swagger-ui.html",
+                "/oauth2/**",  // Login GG
+                "/login/**"
         };
 //         Gọi các phương thức của class HttpSecurity
         http
@@ -52,10 +59,14 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(
                         // Cho phép các trang truy cập
                     authz-> authz
+                            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // DÒNG NÀY RẤT QUAN TRỌNG
                             .requestMatchers(whileList).permitAll()
 //                             Truy cập pthuc GET
 //                            To do
                         .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth2-> oauth2
+                        .successHandler(customOauth2SuccessHandler)
                 )
                 .oauth2ResourceServer((oauth2)-> oauth2.jwt(Customizer.withDefaults())
                         .authenticationEntryPoint(customAuthenticationEntryPoint))

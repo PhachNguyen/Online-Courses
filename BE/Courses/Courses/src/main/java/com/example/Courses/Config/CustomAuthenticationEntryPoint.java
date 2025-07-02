@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 // Xử lý lỗi 401 Unauthorized
+// Custom lại
 @Component
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
