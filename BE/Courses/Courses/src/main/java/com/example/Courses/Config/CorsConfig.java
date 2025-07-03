@@ -33,6 +33,5 @@ public class CorsConfig {
         // Config CORS cho tất cả các API
         source.registerCorsConfiguration("/**", corsConfiguration);
         return source;
-
     }
 }

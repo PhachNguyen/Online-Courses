@@ -6,6 +6,7 @@ import com.example.Courses.Domain.response.ResCreateUserDTO;
 import com.example.Courses.Service.UserService;
 import com.example.Courses.Util.SecurityUtil;
 import com.example.Courses.Util.annotation.ApiMessage;
+import com.example.Courses.Util.constant.LoginType;
 import com.example.Courses.Util.error.IdInvalidExecption;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,6 +51,7 @@ public class AuthController {
 
         String hashPassword = this.passwordEncoder.encode(postManUser.getPassword());
         postManUser.setPassword(hashPassword);
+        postManUser.setLoginType(LoginType.LOCAL);
         User ericUser = this.userService.handleCreateUser(postManUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.convertToResCreateUserDTO(ericUser));
     }

@@ -3,6 +3,7 @@ package com.example.Courses.Service;
 import com.example.Courses.Domain.response.ResCreateUserDTO;
 import com.example.Courses.Domain.model.User;
 import com.example.Courses.Repository.UserRepository;
+import com.example.Courses.Util.constant.LoginType;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -40,6 +41,18 @@ public User handleCreateUser(User user) {
 
     return this.userRepository.save(user);
 }
+
+// Login by Google
+    public User processOAuthLogin(String email, String name) {
+        return userRepository.findByEmail(email).orElseGet(() ->{
+            User user = new User();
+            user.setEmail(email);
+            user.setUsername(name);
+            user.setPassword("GOOGLE_USER");
+            user.setLoginType(LoginType.GOOGLE);
+       return      userRepository.save(user);
+        });
+    }
 // Convert ResUserDTO
 public ResCreateUserDTO convertToResCreateUserDTO(User user) {
     ResCreateUserDTO res = new ResCreateUserDTO();

@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 // Nơi chứa các interface đại diện cho lớp truy vấn dữ liệu, giao tiếp với DB
 //JpaSpecificationExecutor : Tạo truy vấn động Khi bạn cần filter (lọc) dữ liệu theo nhiều điều kiện tùy chọn, ví dụ:
 //  + Tìm kiếm người dùng theo tên, email, role, ngày tạo...
@@ -12,7 +14,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
 
-    User findByEmail(String email);
+    Optional<User> findByEmail(String email);
     User findByUsername(String username);
     boolean existsByEmail(String email);
 
