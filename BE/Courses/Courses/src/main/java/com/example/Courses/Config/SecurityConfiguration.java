@@ -26,16 +26,19 @@ import javax.crypto.spec.SecretKeySpec;
 // Bật tính năng bảo mật ở muc method
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration {
-@Value("${phachnguyen.jwt.base64-secret}")
-    private  String jwtKey;
-// Encode password
+    @Value("${phachnguyen.jwt.base64-secret}")
+    private String jwtKey;
+
+    // Encode password
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(); // Mã hóa password
     }
+
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
-//         Tạo một array String
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+            CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
+        // Tạo một array String
         String[] whileList = {
                 "/",
                 "/api/v1/auth/login", "/api/v1/auth/refresh", "/api/v1/auth/register",
@@ -45,44 +48,45 @@ public class SecurityConfiguration {
                 "/swagger-ui/**",
                 "/swagger-ui.html"
         };
-//         Gọi các phương thức của class HttpSecurity
+        // Gọi các phương thức của class HttpSecurity
         http
-                .csrf(c->c.disable()) // Lambda Expression , Tat csrf
+                .csrf(c -> c.disable()) // Lambda Expression , Tat csrf
                 .cors(Customizer.withDefaults()) // Kích hoạt cors
                 .authorizeHttpRequests(
                         // Cho phép các trang truy cập
-                    authz-> authz
-                            .requestMatchers(whileList).permitAll()
-//                             Truy cập pthuc GET
-//                            To do
-                        .anyRequest().authenticated()
-                )
-                .oauth2ResourceServer((oauth2)-> oauth2.jwt(Customizer.withDefaults())
+                        authz -> authz
+                                .requestMatchers(whileList).permitAll()
+                                // Truy cập pthuc GET
+                                // To do
+                                .anyRequest().authenticated())
+                .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())
                         .authenticationEntryPoint(customAuthenticationEntryPoint))
 
-                            // .exceptionHandling(
-                            // exceptions -> exceptions
-                            // .authenticationEntryPoint(customAuthenticationEntryPoint) // 401
-                            // .accessDeniedHandler(new BearerTokenAccessDeniedHandler())) // 403
+                // .exceptionHandling(
+                // exceptions -> exceptions
+                // .authenticationEntryPoint(customAuthenticationEntryPoint) // 401
+                // .accessDeniedHandler(new BearerTokenAccessDeniedHandler())) // 403
 
-                            .formLogin(f -> f.disable())
-                            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                .formLogin(f -> f.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
     }
-//     Mã hóa JWT
-    @Bean public JwtEncoder jwtEncoder() {
-      return new  NimbusJwtEncoder (new ImmutableSecret<>(getSecretKey()));
+
+    // Mã hóa JWT
+    @Bean
+    public JwtEncoder jwtEncoder() {
+        return new NimbusJwtEncoder(new ImmutableSecret<>(getSecretKey()));
 
     }
+
     private SecretKey getSecretKey() {
-        byte[] keyBytes= Base64.from(jwtKey).decode(); // Giai mã key
-        return new SecretKeySpec(keyBytes, 0,keyBytes.length,
-                SecurityUtil.JWT_ALGORITHM.getName()
-        );
+        byte[] keyBytes = Base64.from(jwtKey).decode(); // Giai mã key
+        return new SecretKeySpec(keyBytes, 0, keyBytes.length,
+                SecurityUtil.JWT_ALGORITHM.getName());
     }
 
-//    Giải mã JWT
+    // Giải mã JWT
     @Bean
     public JwtDecoder jwtDecoder() {
         NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(
