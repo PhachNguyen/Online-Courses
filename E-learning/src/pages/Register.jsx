@@ -1,8 +1,10 @@
 import React, { useState } from "react";
+import axios from "axios";
 import login_learning from "../assets/images/login_learning.png";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { Link } from "react-router-dom";
+
 
 export default function RegisterPage() {
     const [fullName, setFullName] = useState("");
@@ -16,7 +18,7 @@ export default function RegisterPage() {
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         let newErrors = {};
 
@@ -49,7 +51,20 @@ export default function RegisterPage() {
         setErrors(newErrors);
 
         if (Object.keys(newErrors).length === 0) {
-            console.log("Đăng ký thành công với:", { fullName, email, password });
+            try {
+                const response = await axios.post("http://localhost:8080/api/v1/auth/register", { username: fullName, email, password });
+                alert("Đăng ký thành công!");
+                navigate("/login");
+            } catch (error) {
+                // Xử lý lỗi trả về từ backend
+                if (error.response && error.response.data && error.response.data.message) {
+                    alert("Lỗi: " + error.response.data.message);
+                } else {
+                    console.log(error);
+                    alert("Đăng ký thất bại!");
+                }
+            }
+
 
         }
     };

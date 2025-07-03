@@ -40,8 +40,7 @@ export default function LoginPage() {
 
         if (!valid) return;
 
-        console.log("Đăng nhập với", { email, password });
-        // Gửi request đăng nhập ở đây...
+
     };
 
     return (
@@ -59,7 +58,13 @@ export default function LoginPage() {
                             Đăng nhập
                         </h2>
 
-                        <button className="w-full py-3 flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-pink-500 text-white rounded shadow hover:opacity-90">
+                        <button
+                            className="w-full py-3 flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-pink-500 text-white rounded shadow hover:opacity-90"
+                            // type="button"
+                            onClick={() => {
+                                window.location.href = "http://localhost:8080/oauth2/authorization/google";
+                            }}
+                        >
                             <img src={google_icon} alt="Google" className="w-5 h-5" />
                             Đăng nhập bằng Google
                         </button>
