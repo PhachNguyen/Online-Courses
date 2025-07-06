@@ -5,6 +5,9 @@ import com.example.Courses.Util.constant.RoleUser;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+
+import java.util.List;
+
 // Entity : Thiết kế đầy đủ,chứa cả logic nội bộ,đầy đủ
 @Entity
 @Table(name = "users")
@@ -35,4 +38,10 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RoleUser roleUser;
+
+//    createdAt, updatedAt : Todo
+//     Foreign key:
+//     1 user - N quiz
+    @OneToMany
+    private List<Quiz> quizzes;
 }

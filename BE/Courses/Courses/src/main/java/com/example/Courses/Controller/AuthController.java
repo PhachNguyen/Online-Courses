@@ -91,7 +91,8 @@ public class AuthController {
             ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(
                     currentUser.getId(),
                     currentUser.getEmail(),
-                    currentUser.getUsername()
+                    currentUser.getUsername(),
+                    currentUser.getRoleUser()
             );
             resLoginDTO.setUserLogin(userLogin);
 

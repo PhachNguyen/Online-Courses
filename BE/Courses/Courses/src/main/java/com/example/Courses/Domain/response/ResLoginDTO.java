@@ -1,5 +1,6 @@
 package com.example.Courses.Domain.response;
 
+import com.example.Courses.Util.constant.RoleUser;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,7 +24,7 @@ public class ResLoginDTO {
         private long id;
         private String email;
         private String username;
-
+    private RoleUser role;
     }
 //     Bọc lại user cho Response trả về tài khoan
     public static class UserGetAccount{
