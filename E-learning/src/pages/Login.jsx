@@ -1,9 +1,21 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import login_learning from "../assets/images/login_learning.png";
 import google_icon from "../assets/images/google_icon.webp";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import api from "../config/AxiosConfig";
+
+// Utility function for setting auth data
+const setAuthData = (token, user, rememberMe = false) => {
+    if (rememberMe) {
+        localStorage.setItem("accessToken", token);
+        localStorage.setItem("user", JSON.stringify(user));
+    } else {
+        sessionStorage.setItem("accessToken", token);
+        sessionStorage.setItem("user", JSON.stringify(user));
+    }
+};
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -11,10 +23,13 @@ export default function LoginPage() {
     const [emailError, setEmailError] = useState("");
     const [passwordError, setPasswordError] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [rememberMe, setRememberMe] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         setEmailError("");
@@ -40,8 +55,39 @@ export default function LoginPage() {
 
         if (!valid) return;
 
-        console.log("Đăng nhập với", { email, password });
-        // Gửi request đăng nhập ở đây...
+        setIsLoading(true);
+
+        try {
+            const response = await api.post("/auth/login", {
+                email: email,
+                password: password
+            });
+
+            const { accessToken, user } = response.data;
+
+            // Lưu token và thông tin user
+            setAuthData(accessToken, user, rememberMe);
+            console.log(rememberMe ? "Đã lưu token và thông tin user vào localStorage" : "Đã lưu token và thông tin user vào sessionStorage");
+
+            // Chuyển hướng dựa vào role của user
+            if (user.role === "ADMIN") {
+                navigate("/admin");
+            } else if (user.userLogin.role === "TEACHER") {
+                navigate("/teacher");
+            } else {
+                navigate("/student");
+            }
+
+        } catch (error) {
+            console.error("Lỗi đăng nhập:", error);
+            if (error.response?.data?.message) {
+                setPasswordError(error.response.data.message);
+            } else {
+                setPasswordError("Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.");
+            }
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -59,7 +105,13 @@ export default function LoginPage() {
                             Đăng nhập
                         </h2>
 
-                        <button className="w-full py-3 flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-pink-500 text-white rounded shadow hover:opacity-90">
+                        <button
+                            className="w-full py-3 flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-pink-500 text-white rounded shadow hover:opacity-90"
+                            // type="button"
+                            onClick={() => {
+                                window.location.href = "http://localhost:8080/oauth2/authorization/google";
+                            }}
+                        >
                             <img src={google_icon} alt="Google" className="w-5 h-5" />
                             Đăng nhập bằng Google
                         </button>
@@ -130,6 +182,8 @@ export default function LoginPage() {
                                     <input
                                         type="checkbox"
                                         className="w-4 h-4 form-checkbox accent-indigo-500"
+                                        checked={rememberMe}
+                                        onChange={(e) => setRememberMe(e.target.checked)}
                                     />
                                     Nhớ mật khẩu
                                 </label>
@@ -139,10 +193,11 @@ export default function LoginPage() {
                             </div>
 
                             <button
-                                // type="submit"
-                                className="w-full py-3 bg-gradient-to-r from-indigo-500 to-pink-500 text-white text-base font-semibold rounded-md shadow hover:opacity-90 transition"
+                                type="submit"
+                                disabled={isLoading}
+                                className="w-full py-3 bg-gradient-to-r from-indigo-500 to-pink-500 text-white text-base font-semibold rounded-md shadow hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Đăng nhập
+                                {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
                             </button>
 
                             <div className="text-center mt-4 text-sm text-gray-600">

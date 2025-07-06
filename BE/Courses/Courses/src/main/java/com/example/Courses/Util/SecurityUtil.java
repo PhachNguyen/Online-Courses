@@ -1,7 +1,5 @@
 package com.example.Courses.Util;
 
-
-
 import com.example.Courses.Domain.request.ReqRegisterDTO;
 import com.example.Courses.Domain.response.ResLoginDTO;
 import com.nimbusds.jose.JWSObject;
@@ -27,29 +25,36 @@ import java.util.Optional;
 // Create Token
 @Service
 public class SecurityUtil {
-   // private  final JwtEncoder jwtEncoder = new JwtEncoder(); // Tạo trực tiếp trong class
-//     Sử dụng DI
-   private  final JwtEncoder jwtEncoder;
-   public SecurityUtil(JwtEncoder jwtEncoder) {
-       this.jwtEncoder = jwtEncoder;
-   }
+    // private final JwtEncoder jwtEncoder = new JwtEncoder(); // Tạo trực tiếp
+    // trong class
+    // Sử dụng DI
+    private final JwtEncoder jwtEncoder;
+
+    public SecurityUtil(JwtEncoder jwtEncoder) {
+        this.jwtEncoder = jwtEncoder;
+    }
+
     // Sử dụng thuật toán HS512
-    public  static final MacAlgorithm JWT_ALGORITHM = MacAlgorithm.HS512;
-   @Value("${phachnguyen.jwt.base64-secret}")
-    private  String jwtKey;
-   @Value("${phachnguyen.jwt.access-token-validity-in-seconds}")
-   private long accessTokenExpiration;
+    public static final MacAlgorithm JWT_ALGORITHM = MacAlgorithm.HS512;
+    @Value("${phachnguyen.jwt.base64-secret}")
+    private String jwtKey;
+    @Value("${phachnguyen.jwt.access-token-validity-in-seconds}")
+    private long accessTokenExpiration;
     @Value("${phachnguyen.jwt.refresh-token-validity-in-seconds}")
     private long refreshTokenExpiration;
-    // Tạo accessToken : PayLoad
-    public  String createAccessToken(String email, ResLoginDTO resLoginDTO) {
+
+
+    // Tạo accessToken
+    public String createAccessToken(String email, ResLoginDTO resLoginDTO) {
+
         ResLoginDTO.UserInsideToken userToken = new ResLoginDTO.UserInsideToken();
         userToken.setEmail(resLoginDTO.getUserLogin().getEmail());
         userToken.setId(resLoginDTO.getUserLogin().getId());
         userToken.setUsername(resLoginDTO.getUserLogin().getUsername());
         Instant now = Instant.now(); // Set up tg tạo token
-       // Instant expiresAt = now.plusSeconds(accessTokenExpiration);// Dùng cho seconds
-//        Chrono cung cấp các đơn vị tiêu chuẩn sử dụng trong Java Date Time
+        // Instant expiresAt = now.plusSeconds(accessTokenExpiration);// Dùng cho
+        // seconds
+        // Chrono cung cấp các đơn vị tiêu chuẩn sử dụng trong Java Date Time
         Instant validity = now.plus(this.accessTokenExpiration, ChronoUnit.SECONDS);
 
         // hardcode permission (for testing)
@@ -58,10 +63,10 @@ public class SecurityUtil {
         listAuthority.add("ROLE_USER_CREATE");
         listAuthority.add("ROLE_USER_UPDATE");
 
-//         Tạo Header
-        JwsHeader jwsHeader =JwsHeader.with(JWT_ALGORITHM).build();
+        // Tạo Header
+        JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
 
-//        Xây dựng Payload
+        // Xây dựng Payload
         // @formatter:off
 //         Các data trong body thì sẽ là Claim
         JwtClaimsSet claims = JwtClaimsSet.builder()

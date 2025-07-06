@@ -40,15 +40,16 @@ public class AuthController {
             AuthenticationManagerBuilder authenticationManagerBuilder,
             SecurityUtil securityUtil,
             UserService userService,
-            PasswordEncoder passwordEncoder
-    ) {
+            PasswordEncoder passwordEncoder) {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.securityUtil = securityUtil;
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
     }
+
     @Value("${phachnguyen.jwt.refresh-token-validity-in-seconds}")
     private long refreshTokenExpiration;
+
     // Register
     @PostMapping("/register")
     @ApiMessage("Register a new user")
