@@ -17,7 +17,10 @@ import java.io.IOException;
 import java.util.Optional;
 
 // Xử lý lỗi 401 Unauthorized
-// Custom lại
+// Custom lại khi yêu cầu không có xác thực :
+// Không có JWT,hết hạn, không đúng chữ ký, truy cập API mà chưa login
+//
+//
 @Component
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 

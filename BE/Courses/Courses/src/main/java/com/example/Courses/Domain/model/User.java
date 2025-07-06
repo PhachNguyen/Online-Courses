@@ -1,6 +1,7 @@
 package com.example.Courses.Domain.model;
 
 import com.example.Courses.Util.constant.LoginType;
+import com.example.Courses.Util.constant.RoleUser;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -31,5 +32,7 @@ public class User {
 //    @Enumerated(EnumType.ORDINAL) : Lưu STT enum
     @Column(nullable = false)
     private LoginType loginType;
-    private String role; // ví dụ: ADMIN, USER
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private RoleUser roleUser;
 }

@@ -4,6 +4,7 @@ import com.example.Courses.Domain.response.ResCreateUserDTO;
 import com.example.Courses.Domain.model.User;
 import com.example.Courses.Repository.UserRepository;
 import com.example.Courses.Util.constant.LoginType;
+import com.example.Courses.Util.constant.RoleUser;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -36,7 +37,14 @@ public class UserService {
     public boolean isEmailExist(String email) {
         return this.userRepository.existsByEmail(email);
     }
-// Create User
+    // Find by email
+    public User getUserByEmail(String email) {
+        // ném ra execption nếu k tìm thấy user
+        return this.userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy email"));
+    }
+
+    // Create User
 public User handleCreateUser(User user) {
 
     return this.userRepository.save(user);
@@ -50,6 +58,8 @@ public User handleCreateUser(User user) {
             user.setUsername(name);
             user.setPassword("GOOGLE_USER");
             user.setLoginType(LoginType.GOOGLE);
+            user.setRoleUser(RoleUser.STUDENT);
+
        return      userRepository.save(user);
         });
     }

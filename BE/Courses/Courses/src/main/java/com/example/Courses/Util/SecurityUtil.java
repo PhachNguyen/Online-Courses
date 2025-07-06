@@ -2,6 +2,7 @@ package com.example.Courses.Util;
 
 import com.example.Courses.Domain.request.ReqRegisterDTO;
 import com.example.Courses.Domain.response.ResLoginDTO;
+import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.util.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -41,9 +42,14 @@ public class SecurityUtil {
     private long accessTokenExpiration;
     @Value("${phachnguyen.jwt.refresh-token-validity-in-seconds}")
     private long refreshTokenExpiration;
+<<<<<<< HEAD
 
     // Tạo accessToken
     public String createAccessToken(String email, ResLoginDTO resLoginDTO) {
+=======
+    // Tạo accessToken : PayLoad
+    public  String createAccessToken(String email, ResLoginDTO resLoginDTO) {
+>>>>>>> 89a71a8d34528a572ef5b7574a6698d6d06340b1
         ResLoginDTO.UserInsideToken userToken = new ResLoginDTO.UserInsideToken();
         userToken.setEmail(resLoginDTO.getUserLogin().getEmail());
         userToken.setId(resLoginDTO.getUserLogin().getId());
@@ -65,9 +71,12 @@ public class SecurityUtil {
 
         // Xây dựng Payload
         // @formatter:off
+//         Các data trong body thì sẽ là Claim
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 //                Token được phát hành khi nào?
                 .issuedAt(now)
+//                Được cấp(issuer) từ ai
+                .issuer("phachnguyen")
 //          Khi nào hết hạn
                 .expiresAt(validity)
 //                Ai là người dùng
@@ -101,6 +110,7 @@ public class SecurityUtil {
         return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
 
     }
+
     // Tạo Khóa
     private SecretKey getSecretKey() {
         byte[] keyBytes = Base64.from(jwtKey).decode();
