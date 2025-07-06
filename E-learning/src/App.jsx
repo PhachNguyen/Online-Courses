@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import Login from './pages/Login';
@@ -31,17 +31,7 @@ function App() {
         </Routes>
       </div>
     </Router>
-=======
-import AppRouter from "./navigator/AppRouter";
-import ChatWidget from "./components/ChatWidget";
 
-function App() {
-  return (
-    <>
-      <AppRouter />
-      <ChatWidget />
-    </>
->>>>>>> develop
   );
 }
 
