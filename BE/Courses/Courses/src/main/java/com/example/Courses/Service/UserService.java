@@ -43,7 +43,11 @@ public class UserService {
         return this.userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy email"));
     }
-
+// Get user by ID
+    public User getUserById(Long id) {
+        return this.userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User không tồn tại"));
+    }
     // Create User
 public User handleCreateUser(User user) {
 

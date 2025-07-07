@@ -18,7 +18,6 @@ public class Question {
     private Long id;
 
     @ManyToOne // N ques- 1 Quiz
-
     @JoinColumn(name = "quiz_id")
     private Quiz quiz;
 

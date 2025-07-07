@@ -26,7 +26,10 @@ public class Quiz {
    private int duration; // Th ời gian làm bài
     private int totalQuestions; // Tổng số câu hỏi
     private boolean isPublic;
-//     createBy
+    // 1 User - N Quiz
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "create_by")
+         private  User createBy;
 //    createdAt, updatedAt
 //     1 Quiz - N Question
     @OneToMany
