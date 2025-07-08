@@ -1,10 +1,9 @@
 package com.example.Courses.Util.error;
 
-import com.example.Courses.Domain.response.RestResponse;
+import com.example.Courses.domain.response.RestResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 public class GlobalException {
 //     Tạo ngoại lệ toàn cục

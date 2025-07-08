@@ -1,7 +1,7 @@
 package com.example.Courses.Util.validator;
 
 
-import com.example.Courses.Domain.request.ReqRegisterDTO;
+import com.example.Courses.domain.request.ReqRegisterDTO;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
