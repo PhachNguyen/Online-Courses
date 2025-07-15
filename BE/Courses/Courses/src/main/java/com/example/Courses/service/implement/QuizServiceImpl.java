@@ -1,5 +1,6 @@
 package com.example.Courses.service.implement;
 
+import com.example.Courses.service.QuizService;
 import com.example.Courses.service.UserService;
 import com.example.Courses.domain.model.Question;
 import com.example.Courses.domain.model.Quiz;
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class QuizServiceImpl {
+public class QuizServiceImpl implements QuizService {
     private final QuizReposiotry quizReposiotry;
     private final QuestionServiceImpl questionService;
     private final AnswerServiceImpl answerService;
@@ -24,40 +25,61 @@ public class QuizServiceImpl {
        this.userService = userService;
     }
 //    HandleCreateQuiz
-    public Quiz handleCreateQuiz(ReqCreateQuizDTO reqCreateQuizDTO) {
-        User creator = userService.getUserById(reqCreateQuizDTO.getCreatedByIdCreator());
-        Quiz quiz = new Quiz();
-        quiz.setTitle(reqCreateQuizDTO.getTitle());
-        quiz.setDescription(reqCreateQuizDTO.getDescription());
-        quiz.setDuration(reqCreateQuizDTO.getDuration());
-        quiz.setCreateBy(creator);
-        quiz.setPublic(true); // Default sẽ là true
-        // Lưu Quiz để có ID Quiz
-        this.quizReposiotry.save(quiz);
-        // Call QuestionServer để tạo câu hỏi và câu trả lời
-       List<Question> questions = this.questionService.handleCreateQuestion(reqCreateQuizDTO.getQuestions(),quiz);
-       quiz.setQuestions(questions);
-       quiz.setTotalQuestions(questions.size()); // Đếm  số lượng question r tự thêm vào total
-        return this.quizReposiotry.save(quiz); // Lưu lại với danh sách câu hỏi
-
-    }
-//     Covert sang DTO :
-    public ResQuizDTO convertQuizToDTO(Quiz quiz) {
-        ResQuizDTO resQuizDTO = new ResQuizDTO();
-        resQuizDTO.setId(quiz.getId());
-        resQuizDTO.setTitle(quiz.getTitle());
-        resQuizDTO.setDescription(quiz.getDescription());
-        return resQuizDTO;
-    }
-//     Fetch all Quiz
-    public List<Quiz> getAllQuiz() {
-        return this.quizReposiotry.findAll();
-    }
-//     Update
-//    public Quiz updateQuiz(Long id, Quiz quiz) {
-//        Quiz currentQuiz = this.quizReposiotry.findById(id).get();
-//        if(currentQuiz != null) {
-//            currentQuiz.getDescription()
-//        }
+//    public Quiz handleCreateQuiz(ReqCreateQuizDTO reqCreateQuizDTO) {
+//        User creator = userService.getUserById(reqCreateQuizDTO.getCreatedByIdCreator());
+//        Quiz quiz = new Quiz();
+//        quiz.setTitle(reqCreateQuizDTO.getTitle());
+//        quiz.setDescription(reqCreateQuizDTO.getDescription());
+//        quiz.setDuration(reqCreateQuizDTO.getDuration());
+//        quiz.setCreateBy(creator);
+//        quiz.setPublic(true); // Default sẽ là true
+//        // Lưu Quiz để có ID Quiz
+//        this.quizReposiotry.save(quiz);
+//        // Call QuestionServer để tạo câu hỏi và câu trả lời
+//       List<Question> questions = this.questionService.handleCreateQuestion(reqCreateQuizDTO.getQuestions(),quiz);
+//       quiz.setQuestions(questions);
+//       quiz.setTotalQuestions(questions.size()); // Đếm  số lượng question r tự thêm vào total
+//        return this.quizReposiotry.save(quiz); // Lưu lại với danh sách câu hỏi
+//
 //    }
+//     Tạo  mới Quiz :
+    @Override
+    public Quiz handleCreateQuiz(ReqCreateQuizDTO dto) {
+        Quiz quiz = new Quiz();
+        quiz.setTitle(dto.getTitle());
+        quiz.setDescription(dto.getDescription());
+        quiz.setPublic(dto.isPublic());
+        quiz.setDuration(dto.getDuration());
+        quiz.setSubject(dto.getSubject());
+        quiz.setMajorName(dto.getMajorName());
+
+        return this.quizReposiotry.save(quiz);
+    }
+
+//     Covert sang DTO :
+//    public ResQuizDTO convertQuizToDTO(Quiz quiz) {
+//        ResQuizDTO resQuizDTO = new ResQuizDTO();
+//        resQuizDTO.setId(quiz.getId());
+//        resQuizDTO.setTitle(quiz.getTitle());
+//        resQuizDTO.setDescription(quiz.getDescription());
+//        return resQuizDTO;
+//    }
+////     Fetch all Quiz
+//    public List<Quiz> getAllQuiz() {
+//        return this.quizReposiotry.findAll();
+//    }
+////     Update
+//
+//@Override
+//    public Quiz handleUpdateQuiz(Long id,ReqCreateQuizDTO dto){
+//    Quiz quiz = this.quizReposiotry.findById(id).orElseThrow(null);
+//    quiz.setTitle(dto.getTitle());
+//    quiz.setDescription(dto.getDescription());
+//    quiz.setPublic(dto.isPublic());
+//    quiz.setDuration(dto.getDuration());
+//    quiz.setSubject(dto.getSubject());
+//    quiz.setMajorName(dto.getMajorName());
+//    return this.quizReposiotry.save(quiz);
+
+//}
 }

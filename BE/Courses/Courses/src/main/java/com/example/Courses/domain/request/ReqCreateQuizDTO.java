@@ -15,7 +15,9 @@ public class ReqCreateQuizDTO {
     @NotNull(message = "Thời gian làm bài là bắt buộc")
     private int duration;
     private Long createdByIdCreator ; // userId
-
+    private boolean isPublic;
+    private  String subject;
+    private String majorName;
     private List<QuestionDTO> questions;
 }
 

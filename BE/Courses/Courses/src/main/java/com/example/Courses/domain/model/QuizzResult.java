@@ -24,6 +24,7 @@ public class QuizzResult {
     // 1 User - N Result
     @ManyToOne
     private User user;
+//      1 Quiz - N result
     @ManyToOne
     private Quiz quiz;
 

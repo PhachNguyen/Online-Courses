@@ -20,8 +20,12 @@ public class Quiz {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
-    private String description;
-    private String subject; // Toán cao cấp, dstt
+    private String description; // Mô tả về đề thi
+    private String subject; // Major
+    // New
+    private String university; // Chọn trường học
+    private  String majorName;
+    //
    private int duration; // Th ời gian làm bài
     private int totalQuestions; // Tổng số câu hỏi
     private boolean isPublic;
