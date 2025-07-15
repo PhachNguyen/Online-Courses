@@ -1,5 +1,6 @@
 package com.example.Courses.domain.request;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -12,7 +13,7 @@ public class ReqCreateQuizDTO {
     private String title;
 
     private String description;
-    @NotNull(message = "Thời gian làm bài là bắt buộc")
+    @Min(value = 1, message = "Thời gian làm bài phải lớn hơn 0 phút")
     private int duration;
     private Long createdByIdCreator ; // userId
     private boolean isPublic;

@@ -12,17 +12,14 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+
 @Service
 public class QuizServiceImpl implements QuizService {
     private final QuizReposiotry quizReposiotry;
-    private final QuestionServiceImpl questionService;
-    private final AnswerServiceImpl answerService;
-    private  final UserService userService;
-    public QuizServiceImpl(QuizReposiotry quizReposiotry, QuestionServiceImpl questionService, AnswerServiceImpl answerService, UserService userService) {
+
+    public QuizServiceImpl(QuizReposiotry quizReposiotry) {
        this.quizReposiotry = quizReposiotry;
-       this.questionService = questionService;
-       this.answerService = answerService;
-       this.userService = userService;
+
     }
 //    HandleCreateQuiz
 //    public Quiz handleCreateQuiz(ReqCreateQuizDTO reqCreateQuizDTO) {
@@ -82,4 +79,40 @@ public class QuizServiceImpl implements QuizService {
 //    return this.quizReposiotry.save(quiz);
 
 //}
+
+@Override
+public Quiz getQuizById(Long id) {
+    return quizReposiotry.findById(id)
+            .orElseThrow(() -> new RuntimeException("Quiz không tồn tại với ID: " + id));
+}
+
+    @Override
+    public List<Quiz> getAllQuiz() {
+        return this.quizReposiotry.findAll();
+    }
+
+    @Override
+    public Quiz handleUpdateQuiz(Long id, ReqCreateQuizDTO dto) {
+        Quiz quiz = quizReposiotry.findById(id)
+                .orElseThrow(() -> new RuntimeException("Quiz không tồn tại với ID: " + id));
+
+        quiz.setTitle(dto.getTitle());
+        quiz.setDescription(dto.getDescription());
+        quiz.setPublic(dto.isPublic());
+        quiz.setDuration(dto.getDuration());
+        quiz.setSubject(dto.getSubject());
+        quiz.setMajorName(dto.getMajorName());
+
+        return quizReposiotry.save(quiz);
+    }
+
+
+    @Override
+    public void deleteQuiz(Long id) {
+        if (!quizReposiotry.existsById(id)) {
+            throw new RuntimeException("Quiz không tồn tại với ID: " + id);
+        }
+        quizReposiotry.deleteById(id);
+    }
+
 }
