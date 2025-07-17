@@ -19,6 +19,6 @@ public class ReqCreateQuizDTO {
     private boolean isPublic;
     private  String subject;
     private String majorName;
-    private List<QuestionDTO> questions;
+    private List<QuestionDTO> questions; // Một list các question cho quizz
 }
 

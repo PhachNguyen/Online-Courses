@@ -4,11 +4,10 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/BE/Courses/Courses" />
-        <option name="gradleJvm" value="23" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/Courses/Courses" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$/BE/Courses/Courses" />
+            <option value="$PROJECT_DIR$/Courses/Courses" />
           </set>
         </option>
       </GradleProjectSettings>

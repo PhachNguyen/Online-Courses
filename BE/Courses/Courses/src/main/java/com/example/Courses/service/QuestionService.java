@@ -10,9 +10,14 @@ import java.util.List;
 import java.util.Optional;
 
 public interface QuestionService {
+   //CRUD :
+    // Fetch All
     List<Question> getAllQuestions();
     Optional<Question> getQuestionById(Long id);
-    List<Question> handleCreateQuestion(List<QuestionDTO> questionDTOs, Quiz quiz);
-    Question updateQuestion(Long id, Question updatedQuestion);
-    void deleteQuestion(Long id);
+ List<Question> getQuestionsByQuizId(Long quizId); //  Tìm kiếm Question theo ID Quiz
+ Optional<Question> handleCreateQuestion(QuestionDTO dto, Long quizId); // sửa
+ Optional<Question> handleUpdateQuestion(Long questionId, QuestionDTO dto); // sửa
+
+ void handleDeleteQuestion(Long id);
+    //
 }

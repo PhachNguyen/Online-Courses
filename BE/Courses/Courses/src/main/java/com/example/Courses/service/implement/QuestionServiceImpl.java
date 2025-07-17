@@ -6,6 +6,7 @@ import com.example.Courses.domain.model.Question;
 import com.example.Courses.domain.model.Quiz;
 import com.example.Courses.domain.request.QuestionDTO;
 import com.example.Courses.repository.QuestionRepository;
+import com.example.Courses.repository.QuizReposiotry;
 import com.example.Courses.service.AnswerService;
 import com.example.Courses.service.QuestionService;
 import org.springframework.stereotype.Service;
@@ -16,56 +17,75 @@ import java.util.Optional;
 
 @Service
 public class QuestionServiceImpl implements QuestionService {
-
+    private final QuizReposiotry quizReposiotry;
     private final QuestionRepository questionRepository;
     private final AnswerService answerService;
 
-    public QuestionServiceImpl(QuestionRepository questionRepository, AnswerService answerService) {
+    public QuestionServiceImpl(QuestionRepository questionRepository, AnswerService answerService, QuizReposiotry quizReposiotry) {
         this.questionRepository = questionRepository;
         this.answerService = answerService;
+        this.quizReposiotry = quizReposiotry;
     }
 
     @Override
     public List<Question> getAllQuestions() {
-        return questionRepository.findAll();
+        return this.questionRepository.findAll();
     }
 
     @Override
     public Optional<Question> getQuestionById(Long id) {
-        return questionRepository.findById(id);
+        return this.questionRepository.findById(id);
     }
 
     @Override
-    public List<Question> handleCreateQuestion(List<QuestionDTO> questionDTOs, Quiz quiz) {
-        List<Question> questions = new ArrayList<>();
-        for (QuestionDTO questionDTO : questionDTOs) {
+    public List<Question> getQuestionsByQuizId(Long quizId) {
+        return questionRepository.findByQuizId(quizId);
+    }
+
+    @Override
+    public Optional<Question> handleCreateQuestion(QuestionDTO dto, Long quizId) {
+        Optional<Quiz> currentQuiz = quizReposiotry.findById(quizId);
+        if (currentQuiz.isPresent()) {
             Question question = new Question();
-            question.setContent(questionDTO.getContent());
-            question.setType(questionDTO.getType());
-            question.setLevel(questionDTO.getLevel());
-            question.setQuiz(quiz);
-            Question savedQuestion = questionRepository.save(question);
-            if (savedQuestion != null) {
-                answerService.handleCreateAnswer(questionDTO.getAnswers(), savedQuestion);
-            }
-            questions.add(savedQuestion);
+            question.setType(dto.getType());
+            question.setContent(dto.getContent());
+            question.setLevel(dto.getLevel());
+            question.setQuiz(currentQuiz.get());
+
+            // Nếu có danh sách câu trả lời
+//            if (dto.getAnswers() != null && !dto.getAnswers().isEmpty()) {
+//                var answers = answerService.createAnswersFromDTOs(dto.getAnswers(), question);
+//                question.setAnswers(answers);
+//            }
+
+            return Optional.of(questionRepository.save(question));
         }
-        return questions;
+        return Optional.empty();
     }
 
     @Override
-    public Question updateQuestion(Long id, Question updatedQuestion) {
-        return questionRepository.findById(id).map(q -> {
-            q.setContent(updatedQuestion.getContent());
-            q.setType(updatedQuestion.getType());
-            q.setLevel(updatedQuestion.getLevel());
-            q.setQuiz(updatedQuestion.getQuiz());
-            return questionRepository.save(q);
-        }).orElse(null);
+    public Optional<Question> handleUpdateQuestion(Long questionId, QuestionDTO dto) {
+        Optional<Question> existingQuestion = questionRepository.findById(questionId);
+        if (existingQuestion.isPresent()) {
+            Question question = existingQuestion.get();
+            question.setType(dto.getType());
+            question.setContent(dto.getContent());
+            question.setLevel(dto.getLevel());
+
+            // Cập nhật lại danh sách câu trả lời
+//            if (dto.getAnswers() != null) {
+//                var updatedAnswers = answerService.createAnswersFromDTOs(dto.getAnswers(), question);
+//                question.setAnswers(updatedAnswers);
+//            }
+
+            return Optional.of(questionRepository.save(question));
+        }
+        return Optional.empty();
     }
 
     @Override
-    public void deleteQuestion(Long id) {
+    public void handleDeleteQuestion(Long id) {
         questionRepository.deleteById(id);
     }
 }
+

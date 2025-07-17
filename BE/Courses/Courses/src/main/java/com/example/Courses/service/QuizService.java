@@ -11,8 +11,6 @@ public interface QuizService {
 //    Fetch All
    List<Quiz> getAllQuiz();
 //     Render ra Quiz theo từng user
-
-//
 //    Update
     Quiz handleUpdateQuiz(Long id, ReqCreateQuizDTO dto);
     // Fetch theo id

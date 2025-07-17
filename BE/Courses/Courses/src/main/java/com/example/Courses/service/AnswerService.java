@@ -9,11 +9,11 @@ import com.example.Courses.domain.request.AnswerDTO;
 import java.util.List;
 
 public interface AnswerService {
-    void handleCreateAnswer(List<AnswerDTO> answerDTOs, Question question);
-
-    List<Answer> findAllAnswers();
+    List<Answer> handleCreateAnswerForQuestion(List<AnswerDTO> answerDTOs, Long idQuestion);
+    // Fail : k nên trả về toàn bộ dap an, mà chỉ cần trả answer theo question
+    List<Answer> findAllAnswersByQuestionId(Long questionId);
 
     void handleDeleteAnswer(Long id);
 
-    Answer handleUpdateAnswer(Answer reqAnswerDTO);
+    Answer handleUpdateAnswer(AnswerDTO reqAnswerDTO);
 }
