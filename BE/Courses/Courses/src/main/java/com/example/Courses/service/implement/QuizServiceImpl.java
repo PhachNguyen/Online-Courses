@@ -1,5 +1,6 @@
 package com.example.Courses.service.implement;
 
+import com.example.Courses.domain.response.ResultPaginationDTO;
 import com.example.Courses.service.QuizService;
 import com.example.Courses.service.UserService;
 import com.example.Courses.domain.model.Question;
@@ -8,6 +9,9 @@ import com.example.Courses.domain.model.User;
 import com.example.Courses.domain.request.ReqCreateQuizDTO;
 import com.example.Courses.domain.response.ResQuizDTO;
 import com.example.Courses.repository.QuizReposiotry;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -114,5 +118,22 @@ public Quiz getQuizById(Long id) {
         }
         quizReposiotry.deleteById(id);
     }
+//     Fetch phân trang
+
+    @Override
+    public ResultPaginationDTO getAllQuizPage(Pageable pageable, Specification<Quiz> specification) {
+        Page<Quiz> quizPage = quizReposiotry.findAll(specification, pageable);
+        ResultPaginationDTO rs = new ResultPaginationDTO();
+        ResultPaginationDTO.Meta mt = new ResultPaginationDTO.Meta();
+        mt.setPage(pageable.getPageNumber() + 1); // Page bd từ 0
+        mt.setPageSize(pageable.getPageSize());
+        mt.setPages(quizPage.getTotalPages());
+        mt.setTotal(quizPage.getTotalPages());
+         rs.setMeta(mt);
+         rs.setData(quizPage.getContent());
+         return rs;
+}
+
+
 
 }

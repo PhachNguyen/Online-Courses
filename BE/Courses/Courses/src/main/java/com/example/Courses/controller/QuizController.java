@@ -1,12 +1,17 @@
 package com.example.Courses.controller;
 
+import com.example.Courses.Util.annotation.ApiMessage;
 import com.example.Courses.domain.model.Quiz;
 import com.example.Courses.domain.request.ReqCreateQuizDTO;
+import com.example.Courses.domain.response.ResultPaginationDTO;
 import com.example.Courses.service.implement.QuestionServiceImpl;
 import com.example.Courses.service.implement.QuizServiceImpl;
 import com.example.Courses.service.UserService;
+import com.turkraft.springfilter.boot.Filter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,9 +40,17 @@ public class QuizController {
         Quiz quiz = quizService.getQuizById(id);
         return ResponseEntity.ok(quiz);
     }
+//    @GetMapping
+//    public ResponseEntity<List<Quiz>> getAllQuizzes() {
+//        return ResponseEntity.ok(quizService.getAllQuiz());
+//    }
+    // Fetch khi co phan trang
     @GetMapping
-    public ResponseEntity<List<Quiz>> getAllQuizzes() {
-        return ResponseEntity.ok(quizService.getAllQuiz());
+    @ApiMessage("Fetch Quiz Pagination ")
+    public ResponseEntity<ResultPaginationDTO> getAllQuiz(
+            @Filter Specification<Quiz> spec, Pageable pageable
+            ) {
+        return ResponseEntity.ok(this.quizService.getAllQuizPage(pageable, spec));
     }
     //  Cập nhật quiz
     @PutMapping("/{id}")
