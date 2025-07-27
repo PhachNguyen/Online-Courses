@@ -1,0 +1,5 @@
+Dùng WEBMvcConfig:
+Thêm interceptor
+resource handle : file tĩnh nhu ảnh,file pdf
+cors toàn cục
+format date

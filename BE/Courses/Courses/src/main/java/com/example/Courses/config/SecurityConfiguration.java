@@ -52,7 +52,8 @@ public class SecurityConfiguration {
                 "/swagger-ui.html",
                 "/oauth2/**", // Login GG
                 "/login/**",
-                "/api/v1/quizzes"
+                "/api/v1/quizzes",
+                "/storage/**"
         };
         // Gọi các phương thức của class HttpSecurity
         http
