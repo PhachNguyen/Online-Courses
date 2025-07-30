@@ -8,7 +8,7 @@ const getStoredToken = () => {
     }
     return token;
 };
-
+// Xóa khi user log out
 const clearAuthData = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("user");

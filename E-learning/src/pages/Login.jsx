@@ -63,20 +63,20 @@ export default function LoginPage() {
                 password: password
             });
 
-            const { accessToken, user } = response.data;
-
+            const { access_token: accessToken, userLogin: user } = response.data;
+            console.log("Access token khi login là : ", accessToken);
             // Lưu token và thông tin user
             setAuthData(accessToken, user, rememberMe);
             console.log(rememberMe ? "Đã lưu token và thông tin user vào localStorage" : "Đã lưu token và thông tin user vào sessionStorage");
-
-            // Chuyển hướng dựa vào role của user
-            if (user.role === "ADMIN") {
-                navigate("/admin");
-            } else if (user.userLogin.role === "TEACHER") {
-                navigate("/teacher");
-            } else {
-                navigate("/student");
-            }
+            navigate("/teacher")
+            // // Chuyển hướng dựa vào role của user
+            // if (user.role === "ADMIN") {
+            //     navigate("/admin");
+            // } else if (user.userLogin.role === "TEACHER") {
+            //     navigate("/teacher");
+            // } else {
+            //     navigate("/student");
+            // }
 
         } catch (error) {
             console.error("Lỗi đăng nhập:", error);
