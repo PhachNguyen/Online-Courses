@@ -61,6 +61,9 @@ export default function QuizQuestions() {
         setSuccess("");
     }
 
+    function handleSubmit() {
+
+    }
     function handleSaveQuestion() {
         setError("");
         setSuccess("");
@@ -75,7 +78,7 @@ export default function QuizQuestions() {
             content: questionContent,
             learningTopic,
             answers,
-            section: currentSection,
+            level: currentSection,
             explanation: questionType === "FILL_IN_THE_BLANK" ? blankExplanation : explanation
         };
         let updatedQuestions;

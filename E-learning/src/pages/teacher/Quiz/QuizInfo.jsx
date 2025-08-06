@@ -4,7 +4,7 @@ import Quiz1 from "../../../assets/images/quiz/Quiz1.jpg";
 import Quiz2 from "../../../assets/images/quiz/Quiz2.jpg";
 import Quiz3 from "../../../assets/images/quiz/quiz3.jpg";
 import api from "../../../config/AxiosConfig";
-
+import { useNavigate } from "react-router-dom";
 const sampleImages = [Quiz1, Quiz2, Quiz3];
 
 const levelOptions = [
@@ -39,6 +39,7 @@ const topicOptions = [
 ];
 
 const QuizInfo = () => {
+    const navigate = useNavigate();
     const [quizName, setQuizName] = useState("");
     const [level, setLevel] = useState([]);
     const [school, setSchool] = useState([]);
@@ -99,7 +100,11 @@ const QuizInfo = () => {
         try {
 
             const res = await api.post("/quizzes", data);
+            console.log("Question ở infor với id là ", res);
+            const quizId = res.data.id;
+            console.log("Question ở infor với id là ", quizId);
             alert("Tạo đề thi thành công!");
+            navigate(`/quiz/create/questions?quizId=${quizId}`);
         } catch (e) {
             console.log(e.response.data);
             alert("Có lỗi xảy ra khi tạo đề thi!");
