@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import QuizStepper from "./QuizStepper";
 import RichTextEditor from "../../../components/RichTextEditor";
 import QuizSidebar from "../../../components/QuizSidebar";
+import api from "../../../config/AxiosConfig";
 
 function validateQuestion({ questionType, questionContent, answers }) {
-    if (!questionContent.trim()) return "Vui lòng nhập nội dung câu hỏi.";
-    if (questionType === "MULTIPLE_CHOICE" && answers.filter(a => a.content.trim()).length < 2)
+    if (!questionContent || !String(questionContent).trim()) return "Vui lòng nhập nội dung câu hỏi.";
+    if (questionType === "MULTIPLE_CHOICE" && answers.filter(a => (a.content || "").trim()).length < 2)
         return "Cần ít nhất 2 đáp án cho câu hỏi trắc nghiệm.";
     if (questionType === "MULTIPLE_CHOICE" && !answers.some(a => a.isCorrect))
         return "Chọn đáp án đúng cho câu hỏi trắc nghiệm.";
-    if (questionType === "FILL_IN_THE_BLANK" && !answers[0]?.content.trim())
+    if (questionType === "FILL_IN_THE_BLANK" && !((answers[0] && answers[0].content) || "").trim())
         return "Nhập đáp án đúng cho câu hỏi điền vào chỗ trống.";
     if (questionType === "TRUE_FALSE" && answers.length === 0)
         return "Chọn đáp án đúng cho câu hỏi đúng/sai.";
@@ -23,6 +25,10 @@ const QUESTION_TYPE_OPTIONS = [
 ];
 
 export default function QuizQuestions() {
+    // URL: ?id=<quizId> | ?quizId=<quizId>
+    const [searchParams] = useSearchParams();
+    const quizId = searchParams.get("id") || searchParams.get("quizId");
+
     const [questionType, setQuestionType] = useState("MULTIPLE_CHOICE");
     const [questionContent, setQuestionContent] = useState("");
     const [learningTopic, setLearningTopic] = useState("");
@@ -36,11 +42,57 @@ export default function QuizQuestions() {
     const [editIndex, setEditIndex] = useState(null);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    // --- Helpers ---
+    const normalizeQuestionFromBE = (q) => {
+        // Một số BE trả "level", một số FE đang dùng "section" -> map về section
+        const section = q.section || q.level || "Phần 1";
+        const mappedAnswers = (q.answers || []).map((a, idx) => ({
+            id: a.id ?? idx + 1,
+            content: a.content ?? "",
+            // Nếu BE dùng "correct" thay vì "isCorrect" thì fallback
+            isCorrect: a.isCorrect ?? a.correct ?? false,
+        }));
+        return {
+            id: q.id,
+            type: q.type,
+            content: q.content,
+            learningTopic: q.learningTopic || "",
+            answers: mappedAnswers.length ? mappedAnswers : [{ id: 1, content: "", isCorrect: true }],
+            section,
+            explanation: q.explanation || "",
+        };
+    };
+
+    const fetchQuestions = useCallback(async () => {
+        if (!quizId) return;
+        try {
+            setLoading(true);
+            const res = await api.get(`/questions/quiz/${quizId}`);
+            const list = Array.isArray(res.data) ? res.data.map(normalizeQuestionFromBE) : [];
+            setQuestions(list);
+            // Tập hợp các section có trong câu hỏi để render sidebar
+            const uniqSections = Array.from(new Set([...(list.map(q => q.section)), ...sections]));
+            setSections(uniqSections.length ? uniqSections : ["Phần 1"]);
+            if (!uniqSections.includes(currentSection)) setCurrentSection(uniqSections[0]);
+        } catch (e) {
+            console.error("Fetch questions error: ", e);
+            setError("Không tải được danh sách câu hỏi.");
+        } finally {
+            setLoading(false);
+        }
+    }, [quizId]);
+
+    useEffect(() => {
+        fetchQuestions();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [fetchQuestions]);
 
     function handleAddSection() {
         const nextNumber = sections.length + 1;
         const newSection = `Phần ${nextNumber}`;
-        setSections([...sections, newSection]);
+        setSections(prev => [...prev, newSection]);
     }
 
     function handleAddQuestion() {
@@ -61,10 +113,7 @@ export default function QuizQuestions() {
         setSuccess("");
     }
 
-    function handleSubmit() {
-
-    }
-    function handleSaveQuestion() {
+    async function handleSaveQuestion() {
         setError("");
         setSuccess("");
         const err = validateQuestion({ questionType, questionContent, answers });
@@ -72,26 +121,37 @@ export default function QuizQuestions() {
             setError(err);
             return;
         }
-        const newQuestion = {
-            id: editIndex !== null ? questions[editIndex].id : questions.length + 1,
+
+        // Dữ liệu gửi lên BE: dùng "level" để tương thích entity ở BE
+        const payload = {
             type: questionType,
             content: questionContent,
             learningTopic,
             answers,
-            level: currentSection,
-            explanation: questionType === "FILL_IN_THE_BLANK" ? blankExplanation : explanation
+            level: currentSection, // <- BE field
+            explanation: questionType === "FILL_IN_THE_BLANK" ? blankExplanation : explanation,
         };
-        let updatedQuestions;
-        if (editIndex !== null) {
-            updatedQuestions = [...questions];
-            updatedQuestions[editIndex] = newQuestion;
-            setSuccess("Cập nhật câu hỏi thành công!");
-        } else {
-            updatedQuestions = [...questions, newQuestion];
-            setSuccess("Thêm câu hỏi thành công!");
+
+        try {
+            setLoading(true);
+            if (editIndex !== null) {
+                const id = questions[editIndex].id;
+                await api.put(`/questions/${id}`, payload);
+                setSuccess("Cập nhật câu hỏi thành công!");
+            } else {
+                await api.post(`/questions/quiz/${quizId}`, payload);
+                setSuccess("Thêm câu hỏi thành công!");
+            }
+
+            // Đồng bộ lại từ BE để render chính xác
+            await fetchQuestions();
+            resetForm();
+        } catch (e) {
+            console.error("Save question error: ", e);
+            setError(e?.response?.data?.message || "Có lỗi khi lưu câu hỏi");
+        } finally {
+            setLoading(false);
         }
-        setQuestions(updatedQuestions);
-        resetForm();
     }
 
     function handleEditQuestion(idx) {
@@ -109,10 +169,23 @@ export default function QuizQuestions() {
         setSuccess("");
     }
 
-    function handleDeleteQuestion(idx) {
+    async function handleDeleteQuestion(idx) {
+        const q = questions[idx];
+        if (!q) return;
         if (!window.confirm("Bạn chắc chắn muốn xóa câu hỏi này?")) return;
-        setQuestions(questions.filter((_, i) => i !== idx));
-        resetForm();
+
+        try {
+            setLoading(true);
+            await api.delete(`/questions/${q.id}`);
+            setSuccess("Xóa câu hỏi thành công!");
+            await fetchQuestions();
+            resetForm();
+        } catch (e) {
+            console.error("Delete question error: ", e);
+            setError("Xóa câu hỏi thất bại.");
+        } finally {
+            setLoading(false);
+        }
     }
 
     return (
@@ -125,7 +198,7 @@ export default function QuizQuestions() {
                             key={section}
                             onClick={() => setCurrentSection(section)}
                             className={`flex items-center justify-between cursor-pointer px-4 py-2 rounded-lg transition 
-                                ${currentSection === section ? "bg-blue-100 text-blue-700 font-semibold" : "hover:bg-gray-100 text-gray-700"}`}
+                ${currentSection === section ? "bg-blue-100 text-blue-700 font-semibold" : "hover:bg-gray-100 text-gray-700"}`}
                         >
                             <span>{section}</span>
                             <span className="text-sm text-gray-500">
@@ -142,16 +215,20 @@ export default function QuizQuestions() {
                 </div>
 
                 <h3 className="mt-6 font-semibold">Câu hỏi trong phần: {currentSection}</h3>
+                {loading && <div className="text-sm text-gray-500 mt-1">Đang tải...</div>}
                 <ul className="space-y-2 mt-2">
-                    {questions.filter(q => q.section === currentSection).map((q, idx) => (
-                        <li key={q.id} className="flex justify-between items-center border p-2 rounded-lg">
-                            <span className="truncate max-w-[150px]">{q.content.slice(0, 30)}...</span>
-                            <div className="flex gap-2">
-                                <button onClick={() => handleEditQuestion(questions.findIndex(qq => qq.id === q.id))} className="text-blue-500 hover:underline">Sửa</button>
-                                <button onClick={() => handleDeleteQuestion(questions.findIndex(qq => qq.id === q.id))} className="text-red-500 hover:underline">Xóa</button>
-                            </div>
-                        </li>
-                    ))}
+                    {questions.filter(q => q.section === currentSection).map((q, _idx) => {
+                        const idx = questions.findIndex(qq => qq.id === q.id);
+                        return (
+                            <li key={q.id} className="flex justify-between items-center border p-2 rounded-lg">
+                                <span className="truncate max-w-[150px]">{(q.content || "").replace(/<[^>]*>/g, '').slice(0, 30)}...</span>
+                                <div className="flex gap-2">
+                                    <button onClick={() => handleEditQuestion(idx)} className="text-blue-500 hover:underline">Sửa</button>
+                                    <button onClick={() => handleDeleteQuestion(idx)} className="text-red-500 hover:underline">Xóa</button>
+                                </div>
+                            </li>
+                        );
+                    })}
                 </ul>
 
                 <button onClick={handleAddQuestion} className="mt-4 block text-sm text-white bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg">
@@ -198,7 +275,7 @@ export default function QuizQuestions() {
                                     <input
                                         type="radio"
                                         name="correct"
-                                        checked={answer.isCorrect}
+                                        checked={!!answer.isCorrect}
                                         onChange={() => setAnswers(answers.map(a => ({ ...a, isCorrect: a.id === answer.id })))}
                                     />
                                     <input
@@ -250,7 +327,7 @@ export default function QuizQuestions() {
                 </div>
 
                 <div className="mt-6 flex gap-4">
-                    <button onClick={handleSaveQuestion} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    <button onClick={handleSaveQuestion} disabled={loading} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-60">
                         {editIndex !== null ? "Cập nhật" : "Lưu"}
                     </button>
                     <button onClick={resetForm} className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300">

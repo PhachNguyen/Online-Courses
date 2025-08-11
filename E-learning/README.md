@@ -13,4 +13,5 @@ If you are developing a production application, we recommend using TypeScript wi
 
 Cài thư viện Router-DOM : npm install react-router-dom
 Cài thư viện Heroicons : npm install @heroicons/react
+Sử dụng icon : ll lucide-react
 

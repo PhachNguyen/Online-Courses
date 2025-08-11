@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Filter, PlusCircle, Trash2, Settings, Share2, Eye, UserRound } from "lucide-react";
+import { Search, Filter, PlusCircle, Trash2, Settings, Share2, Eye, UserRound, GraduationCap } from "lucide-react";
 
 const TeacherDashboard = () => {
     const navigate = useNavigate();
@@ -12,11 +12,11 @@ const TeacherDashboard = () => {
                 <h2 className="text-2xl font-bold text-purple-600 mb-8">EduQuiz Studio</h2>
                 <nav className="space-y-4">
                     <div className="flex items-center gap-2 text-sm font-semibold text-gray-500 uppercase">
-                        <UserRound className="w-4 h-4" />
+                        <UserRound className="w-6 h-6" />
                         Cá nhân
                     </div>
 
-                    <ul className="space-y-2 text-sm">
+                    <ul className="space-y-3 px-4 text-sm ">
                         <li className="text-gray-700 hover:text-purple-600 cursor-pointer">Khám phá đề thi</li>
                         <li className="text-gray-700 hover:text-purple-600 cursor-pointer">Thư viện của tôi</li>
                         <li className="text-gray-700 hover:text-purple-600 cursor-pointer">Truy cập gần đây</li>
@@ -25,8 +25,11 @@ const TeacherDashboard = () => {
                         <li className="text-gray-700 hover:text-purple-600 cursor-pointer">BXH thi đua</li>
                     </ul>
 
-                    <div className="mt-6 text-sm font-semibold text-gray-500 uppercase">Quản lý</div>
-                    <ul className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2 text-sm font-semibold text-gray-500 uppercase">
+                        <GraduationCap className="w-6 h-6" />
+                        Quản lý
+                    </div>
+                    <ul className="space-y-3 text-sm px-4">
                         <li className="text-purple-600 font-semibold cursor-pointer">Đề thi</li>
                         <li className="text-gray-700 hover:text-purple-600 cursor-pointer">Chuyên mục</li>
                         <li className="text-gray-700 hover:text-purple-600 cursor-pointer">Gói dịch vụ</li>
@@ -75,7 +78,7 @@ const TeacherDashboard = () => {
                     <div className="bg-white rounded-lg shadow overflow-hidden">
                         <img src="https://via.placeholder.com/400x150.png?text=Quiz+Image" alt="Quiz" className="w-full h-40 object-cover" />
                         <div className="p-4">
-                            <div className="font-semibold text-lg">Phách thev</div>
+                            <div className="font-semibold text-lg">Phách thế</div>
                             <div className="text-sm text-gray-500 mb-2">30/07/2025</div>
                             <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
                                 <span>📝 0</span>
