@@ -91,6 +91,11 @@ public Quiz getQuizById(Long id) {
 }
 
     @Override
+    public boolean quizExists(Long quizId) {
+        return quizReposiotry.existsById(quizId);
+    }
+
+    @Override
     public List<Quiz> getAllQuiz() {
         return this.quizReposiotry.findAll();
     }

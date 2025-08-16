@@ -11,6 +11,8 @@ import java.util.List;
 
 
 public interface QuizService {
+    // Hàm check Quiz exist
+    boolean quizExists(Long quizId);
 //     CRUD :
 //    Fetch All
    List<Quiz> getAllQuiz();

@@ -28,11 +28,12 @@ public class Question {
     @Enumerated(EnumType.STRING)
     private QuestionType type;
 
-    private String level;
+    private String level; // Chuyển thành session ở FE
+//     MappedBy :
 //cascade = CascadeType.ALL : Nếu bạn lưu/xóa/cập nhật Question, thì các Answer
 // liên quan cũng sẽ tự động được xử lý theo (ví dụ: lưu luôn tất cả đáp án khi lưu câu hỏi)
-    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+    @JsonIgnore // K res
     private List<Answer> answers;
 }
 

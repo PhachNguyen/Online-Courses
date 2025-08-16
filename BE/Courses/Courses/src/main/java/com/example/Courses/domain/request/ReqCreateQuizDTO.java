@@ -13,7 +13,7 @@ public class ReqCreateQuizDTO {
     private String title;
 
     private String description;
-    @Min(value = 1, message = "Thời gian làm bài phải lớn hơn 0 phút")
+   // @Min(value = 1, message = "Thời gian làm bài phải lớn hơn 0 phút")
     private int duration;
     private Long createdByIdCreator ; // userId
     private boolean isPublic;

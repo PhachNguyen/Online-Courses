@@ -8,11 +8,12 @@ import java.util.List;
 
 @Data
 public class QuestionDTO {
-    @NotBlank
+    private Long id;
+//    @NotBlank
     private String content;
-    @NotNull
+//    @NotNull
     private QuestionType type;
-    @NotBlank
+//    @NotBlank
     private String level;
-    private List<AnswerDTO> answers; // Mot List các answer cho question
+    private List<AnswerDTO> answers; // Tạo các answer cho 1 question
 }

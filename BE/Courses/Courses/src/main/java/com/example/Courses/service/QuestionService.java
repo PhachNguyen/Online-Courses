@@ -19,5 +19,8 @@ public interface QuestionService {
  Optional<Question> handleUpdateQuestion(Long questionId, QuestionDTO dto); // sửa
 
  void handleDeleteQuestion(Long id);
-    //
+
+    // Convert sang DTO
+ QuestionDTO convertQuestionToQuestionDTO(Question question);
+
 }
