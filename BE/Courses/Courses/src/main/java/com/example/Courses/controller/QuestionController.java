@@ -27,7 +27,7 @@ public class QuestionController {
         return ResponseEntity.ok(questionService.getAllQuestions());
     }
 
-    // GET: /api/questions/{id}
+    // GET: /api/questions/{id} : FIXES RENDER RA CẢ ANSWER
     @GetMapping("/{id}")
     public ResponseEntity<Question> getQuestionById(@PathVariable Long id) {
         return questionService.getQuestionById(id)
@@ -41,23 +41,25 @@ public class QuestionController {
         return ResponseEntity.ok(questionService.getQuestionsByQuizId(quizId));
     }
 
-    // POST: /api/questions/quiz/{quizId}
+    // POST: /api/questions/quiz/{quizId} = DONE
     @PostMapping("/quiz/{quizId}")
-    public ResponseEntity<Question> createQuestion(
-            @PathVariable Long quizId,
-            @RequestBody @Valid QuestionDTO dto
+    public ResponseEntity<QuestionDTO> createQuestion(
+            @PathVariable Long quizId, // Lấy id Quiz
+            @RequestBody @Valid QuestionDTO dto // Các trường nhập từ FE
     ) {
         Optional<Question> createdQuestion = questionService.handleCreateQuestion(dto, quizId);
         if (createdQuestion.isPresent()) {
-            Question question = createdQuestion.get();
+            QuestionDTO resQuestionDTO = this.questionService.convertQuestionToQuestionDTO(createdQuestion.get());
+            // Succes
             return ResponseEntity
                     .status(HttpStatus.CREATED)
-                    .body(question);
+                    .body(resQuestionDTO);
         }
+        // Fail
         return ResponseEntity.badRequest().build(); // Trả về HTTP 400 nếu tạo thất bại
     }
 
-
+// Fixes lại PUT update: mới chỉ update được mỗi question, còn answer chưa đc update
     // PUT: /api/questions/{id}
     @PutMapping("/{id}")
     public ResponseEntity<Question> updateQuestion(
@@ -69,7 +71,7 @@ public class QuestionController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // DELETE: /api/questions/{id}
+    // DELETE: /api/questions/{id} = DONE
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteQuestion(@PathVariable Long id) {
         questionService.handleDeleteQuestion(id);

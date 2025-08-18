@@ -13,7 +13,11 @@ public interface AnswerService {
     // Fail : k nên trả về toàn bộ dap an, mà chỉ cần trả answer theo question
     List<Answer> findAllAnswersByQuestionId(Long questionId);
 
+//     Note : Hàm detele nếu answer có trong Question thì sẽ k xóa được
     void handleDeleteAnswer(Long id);
 
     Answer handleUpdateAnswer(AnswerDTO reqAnswerDTO);
+
+    // Convert DTO Answer
+    Answer convertDTO(Answer answer);
 }

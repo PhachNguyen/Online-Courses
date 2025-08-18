@@ -73,4 +73,10 @@ public class AnswerServiceImpl implements AnswerService {
         return answerRepository.save(answer);
     }
 
+    @Override
+    public Answer convertDTO(Answer answer) {
+        return null;
+    }
+
+
 }
