@@ -127,11 +127,12 @@ const TeacherDashboard = () => {
                                 <div className="p-4">
                                     <div className="font-semibold text-lg">{quiz.title || "Chưa có tiêu đề"}</div>
                                     <div className="text-sm text-gray-500 mb-2">
-                                        {quiz.createdAt ? new Date(quiz.createdAt).toLocaleDateString() : "Không rõ ngày"}
+                                        {/*  Convert sang chuỗi  */}
+                                        {quiz.createAt ? new Date(quiz.createAt).toLocaleDateString() : "Không rõ ngày"}
                                     </div>
                                     <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
-                                        <span>📝 {quiz.questions?.length || 0}</span>
-                                        <span>👨‍🎓 {quiz.participants || 0}</span>
+                                        <span>📝 {quiz.totalQuestions || 0}</span>
+                                        <span>👨‍🎓 {quiz.createBy || 0}</span>
                                         <span>📈 {quiz.views || 0}</span>
                                     </div>
                                     <div className="flex justify-between items-center text-gray-600 text-sm">
