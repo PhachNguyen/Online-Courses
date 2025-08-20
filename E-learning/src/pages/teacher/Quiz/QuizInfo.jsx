@@ -39,7 +39,7 @@ const QuizInfo = () => {
     const [major, setMajor] = useState(null);
     const [subject, setSubject] = useState(null);
     const [description, setDescription] = useState("");
-    const [selectedImage, setSelectedImage] = useState(null); // preview URL
+    const [selectedImage, setSelectedImage] = useState(null); // preview
     const [imageFile, setImageFile] = useState(null); // file để upload
     const [selectedSample, setSelectedSample] = useState(null);
     const [duration, setDuration] = useState(60);
@@ -61,20 +61,48 @@ const QuizInfo = () => {
     const isMajorError = touched.major && !major;
     const isSubjectError = touched.subject && !subject;
 
-    // Chọn file ảnh (preview thôi, chưa upload)
+    // Chọn file ảnh (preview)
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if (!file) return;
-        setSelectedImage(URL.createObjectURL(file)); // preview
-        setImageFile(file); // giữ file để upload sau
+        setSelectedImage(URL.createObjectURL(file));
+        setImageFile(file);
         setSelectedSample(null);
     };
 
-    // Chọn sample (preview thôi)
+    // Chọn sample
     const handleSelectSample = (sampleUrl) => {
         setSelectedImage(sampleUrl);
         setSelectedSample(sampleUrl);
         setImageFile(null);
+    };
+
+    // Upload file và trả về fileName
+    const uploadImage = async () => {
+        if (imageFile) {
+            const formData = new FormData();
+            formData.append("file", imageFile);
+            formData.append("folder", "Quiz");
+            const res = await api.post("/file", formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
+            return res.data.data.fileName;
+        }
+
+        if (selectedSample) {
+            const response = await fetch(selectedSample);
+            const blob = await response.blob();
+            const file = new File([blob], "sample.jpg", { type: blob.type });
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("folder", "quiz");
+            const res = await api.post("/file", formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
+            return res.data.data.fileName;
+        }
+
+        return null;
     };
 
     // Tạo quiz
@@ -94,56 +122,27 @@ const QuizInfo = () => {
         const levelStr = level.map((l) => l.value).join(", ");
         const universityStr = school.map((s) => s.value).join(", ");
 
-        const data = {
-            title: quizName,
-            level: levelStr,
-            university: universityStr,
-            majorName: major?.value || null,
-            subject: subject?.value || null,
-            duration,
-            description,
-            isPublic,
-            usePassword,
-            imageUrl: null, // tạm để null
-        };
-
         try {
-            // 1. Tạo quiz
+            // Upload ảnh trước
+            const fileName = await uploadImage();
+
+            // Data quiz
+            const data = {
+                title: quizName,
+                level: levelStr,
+                university: universityStr,
+                majorName: major?.value || null,
+                subject: subject?.value || null,
+                duration,
+                description,
+                isPublic,
+                usePassword,
+                logo: fileName,
+            };
+            console.log("Ảnh là : ", fileName);
+            // Tạo quiz
             const res = await api.post("/quizzes", data);
             const quizId = res.data.id;
-            let finalImageUrl = null;
-
-            // 2. Nếu có file ảnh thì upload
-            if (imageFile) {
-                const formData = new FormData();
-                formData.append("file", imageFile);
-                formData.append("folder", `quiz/${quizId}`);
-                const uploadRes = await api.post("/file", formData, {
-                    headers: { "Content-Type": "multipart/form-data" },
-                });
-                const fileName = uploadRes.data.data.fileName;
-                finalImageUrl = `http://localhost:8080/storage/${quizId}/${fileName}`;
-            }
-
-            // 3. Nếu chọn sample thì fetch + upload
-            if (!finalImageUrl && selectedSample) {
-                const response = await fetch(selectedSample);
-                const blob = await response.blob();
-                const file = new File([blob], "sample.jpg", { type: blob.type });
-                const formData = new FormData();
-                formData.append("file", file);
-                formData.append("folder", `quiz/${quizId}`);
-                const uploadRes = await api.post("/file", formData, {
-                    headers: { "Content-Type": "multipart/form-data" },
-                });
-                const fileName = uploadRes.data.data.fileName;
-                finalImageUrl = `http://localhost:8080/storage/quiz/${quizId}/${fileName}`;
-            }
-
-            // 4. Update quiz để thêm imageUrl
-            if (finalImageUrl) {
-                await api.put(`/quizzes/${quizId}`, { ...data, imageUrl: finalImageUrl });
-            }
 
             alert("Tạo đề thi thành công!");
             navigate(`/quiz/create/questions?quizId=${quizId}`);
@@ -204,9 +203,7 @@ const QuizInfo = () => {
                     <div className="font-bold mb-6 text-2xl">Thông tin cơ bản</div>
                     {/* Tên */}
                     <div className="mb-5">
-                        <label
-                            className={`block font-medium mb-1 ${isQuizNameError ? "text-red-400" : ""}`}
-                        >
+                        <label className={`block font-medium mb-1 ${isQuizNameError ? "text-red-400" : ""}`}>
                             Tên đề thi <span className="text-red-500">*</span>
                         </label>
                         <input
