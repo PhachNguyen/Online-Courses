@@ -142,7 +142,7 @@ const QuizInfo = () => {
             console.log("Ảnh là : ", fileName);
             // Tạo quiz
             const res = await api.post("/quizzes", data);
-            const quizId = res.data.id;
+            const quizId = res.data.data.id;
 
             alert("Tạo đề thi thành công!");
             navigate(`/quiz/create/questions?quizId=${quizId}`);

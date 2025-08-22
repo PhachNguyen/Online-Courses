@@ -74,7 +74,7 @@ export default function QuizQuestions() {
         try {
             setLoading(true);
             const res = await api.get(`/questions/quiz/${quizId}`);
-            const list = Array.isArray(res.data) ? res.data.map(normalizeQuestionFromBE) : [];
+            const list = Array.isArray(res.data.data) ? res.data.data.map(normalizeQuestionFromBE) : [];
             setQuestions(list);
             // Tập hợp các section có trong câu hỏi để render sidebar
             const uniqSections = Array.from(new Set([...(list.map(q => q.section)), ...sections]));

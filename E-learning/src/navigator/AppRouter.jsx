@@ -11,7 +11,7 @@ import QuizQuestions from "../pages/teacher/Quiz/QuizQuestions";
 import QuizAdvanced from "../pages/teacher/Quiz/QuizAdvanced";
 import QuizHistory from "../pages/teacher/Quiz/QuizHistory";
 import QuizStatistics from "../pages/teacher/Quiz/QuizStatistics";
-
+import QuizStart from "../pages/QuizDetail";
 export default function AppRouter() {
     return (
         <>
@@ -26,6 +26,7 @@ export default function AppRouter() {
                 <Route path="/quiz/create/advanced" element={<QuizAdvanced />} />
                 <Route path="/quiz/create/history" element={<QuizHistory />} />
                 <Route path="/quiz/create/statistics" element={<QuizStatistics />} />
+                <Route path="/quiz/:id" element={<QuizStart />} />
             </Routes>
             <Footer />
         </>
