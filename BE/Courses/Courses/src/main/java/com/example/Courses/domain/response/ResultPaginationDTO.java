@@ -6,16 +6,17 @@ import lombok.Setter;
 @Setter
 @Getter
 public class ResultPaginationDTO {
+    // Set up
     private Meta meta;
-    private Object data;
+    private Object data;  // List các danh sách
 
     @Getter
     @Setter
-    public static class Meta{
-        private int page;
-        private int pageSize;
-        private int pages;
-        private int total;
+    public static class Meta{ // Class render ra page
+        private int page; //  Current page
+        private int pageSize; // limit pages on size
+        private int pages; // Tổng số trang
+        private Long total; // All
 
     }
 }

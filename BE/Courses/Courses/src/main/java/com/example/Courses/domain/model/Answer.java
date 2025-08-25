@@ -1,5 +1,6 @@
 package com.example.Courses.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,5 +21,6 @@ public class Answer {
 
     @ManyToOne
     @JoinColumn(name = "question_id")
+    @JsonIgnoreProperties({"question"})
     private Question question;
 }

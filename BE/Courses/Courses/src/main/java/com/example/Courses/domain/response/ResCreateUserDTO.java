@@ -1,4 +1,7 @@
 package com.example.Courses.domain.response;
+
+import java.time.Instant;
+
 // Response User for Server: Chỉ chứa các thông tin cần trả về
 public class ResCreateUserDTO {
 private Long id;
@@ -17,14 +20,33 @@ private Long id;
     private String email;
 private String password;
 private String confirmPassword;
+private String createBy;
+private Instant createAt;
 
     public Long getId() {
         return id;
     }
 
+    public String getCreateBy() {
+        return createBy;
+    }
+
+    public void setCreateBy(String createBy) {
+        this.createBy = createBy;
+    }
+
+    public void setCreateAt(Instant createAt) {
+        this.createAt = createAt;
+    }
+
+    public Instant getCreateAt() {
+        return createAt;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }
+
 
 //    public String getFirstName() {
 //        return firstName;

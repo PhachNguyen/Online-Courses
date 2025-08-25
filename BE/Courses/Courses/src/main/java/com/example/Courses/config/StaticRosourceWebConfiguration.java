@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+// Lưu file vào ReSource
 @Configuration
 public class StaticRosourceWebConfiguration implements WebMvcConfigurer {
     @Value("${phachnguyen.upload-file.base-uri}")

@@ -2,6 +2,7 @@ package com.example.Courses.service;
 
 import com.example.Courses.domain.model.Quiz;
 import com.example.Courses.domain.request.ReqCreateQuizDTO;
+import com.example.Courses.domain.response.Quiz.ResQuizDTO;
 import com.example.Courses.domain.response.ResultPaginationDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,4 +30,5 @@ public interface QuizService {
 //     Fetch phan trang cho Quiz
     ResultPaginationDTO getAllQuizPage(Pageable pageable, Specification<Quiz> specification);
 //    Specification<T> : Spring data JPA call các cau truy vấn động dựa trên tiêu chí, filter
+    ResQuizDTO convertQuizToResQuizDTO(Quiz quiz);
 }
