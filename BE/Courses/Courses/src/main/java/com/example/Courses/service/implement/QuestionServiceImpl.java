@@ -35,6 +35,11 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
+    public Question findById(Long id) {
+        return this.questionRepository.findById(id).orElse(null);
+    }
+
+    @Override
     public List<Question> getAllQuestions() {
         return this.questionRepository.findAll();
     }
@@ -81,7 +86,7 @@ public class QuestionServiceImpl implements QuestionService {
 
 
     @Override
-    public Optional<Question> handleUpdateQuestion(Long questionId, QuestionDTO dto) {
+    public Optional<Question> handleUpdateQuestion(Long questionId, QuestionDTO dto) { // DTO là question đang đc req
         Optional<Question> existingQuestion = questionRepository.findById(questionId); // Check question exist
         if (existingQuestion.isPresent()) {
             Question question = existingQuestion.get();
@@ -97,7 +102,7 @@ public class QuestionServiceImpl implements QuestionService {
             for (AnswerDTO answerDTO : dto.getAnswers()) {
                 if (answerDTO.getId() != null) {
                     //
-                    Answer ans = currentMap.get(answerDTO.getId()); // Gán các ans vào current
+                    Answer ans = currentMap.get(answerDTO.getId()); // Tìm Key là id và lấy object Answer
                     if (ans != null) {
                         ans.setContent(answerDTO.getContent());
                         ans.setCorrect(answerDTO.isCorrect());
@@ -109,6 +114,9 @@ public class QuestionServiceImpl implements QuestionService {
         return Optional.empty();
     }
 
+    public Answer findAnswer( Long answerId) {
+        return this.answerRepository.findById(answerId).orElse(null);
+    }
     @Override
     public void handleDeleteQuestion(Long id) {
         questionRepository.deleteById(id);

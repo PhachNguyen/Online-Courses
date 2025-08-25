@@ -1,4 +1,4 @@
-package com.example.Courses.domain.response;
+package com.example.Courses.domain.response.Auth;
 
 import com.example.Courses.Util.constant.RoleUser;
 import com.fasterxml.jackson.annotation.JsonProperty;

@@ -3,6 +3,7 @@ package com.example.Courses.controller;
 import com.example.Courses.Util.annotation.ApiMessage;
 import com.example.Courses.domain.model.Quiz;
 import com.example.Courses.domain.request.ReqCreateQuizDTO;
+import com.example.Courses.domain.response.Quiz.ResQuizDTO;
 import com.example.Courses.domain.response.ResultPaginationDTO;
 import com.example.Courses.service.implement.QuestionServiceImpl;
 import com.example.Courses.service.implement.QuizServiceImpl;
@@ -30,7 +31,8 @@ public class QuizController {
     public ResponseEntity<?> createQuiz(@Valid @RequestBody ReqCreateQuizDTO dto) {
         try {
             Quiz createdQuiz = quizService.handleCreateQuiz(dto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdQuiz);
+            ResQuizDTO resQuizDTO = quizService.convertQuizToResQuizDTO(createdQuiz);
+            return ResponseEntity.status(HttpStatus.CREATED).body(resQuizDTO);
         }catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
@@ -38,6 +40,7 @@ public class QuizController {
     @GetMapping("/{id}")
     public ResponseEntity<Quiz> getQuizById(@PathVariable Long id) {
         Quiz quiz = quizService.getQuizById(id);
+  //      ResQuizDTO res = quizService.convertQuizToResQuizDTO(quiz);
         return ResponseEntity.ok(quiz);
     }
 //    @GetMapping
@@ -45,7 +48,7 @@ public class QuizController {
 //        return ResponseEntity.ok(quizService.getAllQuiz());
 //    }
     // Fetch khi co phan trang
-    @GetMapping
+    @GetMapping // Fixes render ra id question
     @ApiMessage("Fetch Quiz Pagination ")
     public ResponseEntity<ResultPaginationDTO> getAllQuiz(
             @Filter Specification<Quiz> spec, Pageable pageable

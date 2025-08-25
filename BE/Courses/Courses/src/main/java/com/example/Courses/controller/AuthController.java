@@ -3,13 +3,13 @@ package com.example.Courses.controller;
 import com.example.Courses.domain.model.User;
 import com.example.Courses.domain.request.ReqLoginDTO;
 import com.example.Courses.domain.response.ResCreateUserDTO;
-import com.example.Courses.domain.response.ResLoginDTO;
+import com.example.Courses.domain.response.Auth.ResLoginDTO;
 import com.example.Courses.service.UserService;
 import com.example.Courses.Util.SecurityUtil;
 import com.example.Courses.Util.annotation.ApiMessage;
 import com.example.Courses.Util.constant.LoginType;
 import com.example.Courses.Util.constant.RoleUser;
-import com.example.Courses.Util.error.IdInvalidExecption;
+import com.example.Courses.Util.error.IdInvalidExeption;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -51,10 +51,10 @@ public class AuthController {
     // Register
     @PostMapping("/register")
     @ApiMessage("Register a new user")
-    public ResponseEntity<ResCreateUserDTO> register(@Valid @RequestBody User postManUser) throws IdInvalidExecption {
+    public ResponseEntity<ResCreateUserDTO> register(@Valid @RequestBody User postManUser) throws IdInvalidExeption {
         boolean isEmailExist = this.userService.isEmailExist(postManUser.getEmail());
         if (isEmailExist) {
-            throw new IdInvalidExecption(
+            throw new IdInvalidExeption(
                     "Email " + postManUser.getEmail() + "đã tồn tại, vui lòng sử dụng email khác.");
         }
 

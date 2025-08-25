@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface QuestionService {
+    Question findById(Long id);
    //CRUD :
     // Fetch All
     List<Question> getAllQuestions();
@@ -22,5 +23,6 @@ public interface QuestionService {
 
     // Convert sang DTO
  QuestionDTO convertQuestionToQuestionDTO(Question question);
+
 
 }

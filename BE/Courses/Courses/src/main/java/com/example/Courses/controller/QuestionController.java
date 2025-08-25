@@ -2,6 +2,7 @@
 
 package com.example.Courses.controller;
 
+import com.example.Courses.Util.error.IdInvalidExeption;
 import com.example.Courses.domain.model.Question;
 import com.example.Courses.domain.request.QuestionDTO;
 import com.example.Courses.service.QuestionService;
@@ -27,7 +28,7 @@ public class QuestionController {
         return ResponseEntity.ok(questionService.getAllQuestions());
     }
 
-    // GET: /api/questions/{id} : FIXES RENDER RA CẢ ANSWER
+    // GET: /api/questions/{id} :
     @GetMapping("/{id}")
     public ResponseEntity<Question> getQuestionById(@PathVariable Long id) {
         return questionService.getQuestionById(id)
@@ -60,16 +61,30 @@ public class QuestionController {
     }
 
 // Fixes lại PUT update: mới chỉ update được mỗi question, còn answer chưa đc update
-    // PUT: /api/questions/{id}
-    @PutMapping("/{id}")
-    public ResponseEntity<Question> updateQuestion(
-            @PathVariable Long id,
-            @RequestBody QuestionDTO dto
-    ) {
-        return questionService.handleUpdateQuestion(id, dto)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+@PutMapping("/{id}")
+public ResponseEntity<Question> updateQuestion(
+        @PathVariable Long id,
+        @RequestBody QuestionDTO dto
+) throws IdInvalidExeption {
+    // check tồn tại
+    Question question = questionService.findById(id);
+    if(question == null) {
+        throw new IdInvalidExeption( " Không tìm thấy "+ id + " của Question");
     }
+    // check thêm rule (nếu cần)
+    if (dto.getContent() == null || dto.getContent().isEmpty()) {
+        throw new IdInvalidExeption("Nội dung câu hỏi không được để trống");
+    }
+
+    // update
+    Optional<Question> updated = questionService.handleUpdateQuestion(question.getId(), dto);
+    if (updated.isPresent()) {
+        return ResponseEntity.ok(updated.get());
+    } else {
+        throw new IdInvalidExeption("Không thể cập nhật Question id = " + id);
+    }
+}
+
 
     // DELETE: /api/questions/{id} = DONE
     @DeleteMapping("/{id}")

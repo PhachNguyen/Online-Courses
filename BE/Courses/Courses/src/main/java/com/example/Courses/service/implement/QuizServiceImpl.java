@@ -1,13 +1,10 @@
 package com.example.Courses.service.implement;
 
+import com.example.Courses.domain.response.Quiz.ResQuizDTO;
 import com.example.Courses.domain.response.ResultPaginationDTO;
 import com.example.Courses.service.QuizService;
-import com.example.Courses.service.UserService;
-import com.example.Courses.domain.model.Question;
 import com.example.Courses.domain.model.Quiz;
-import com.example.Courses.domain.model.User;
 import com.example.Courses.domain.request.ReqCreateQuizDTO;
-import com.example.Courses.domain.response.ResQuizDTO;
 import com.example.Courses.repository.QuizReposiotry;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -53,7 +50,8 @@ public class QuizServiceImpl implements QuizService {
         quiz.setDuration(dto.getDuration());
         quiz.setSubject(dto.getSubject());
         quiz.setMajorName(dto.getMajorName());
-
+        quiz.setUniversity(dto.getUniversity());
+        quiz.setLogo(dto.getLogo());
         return this.quizReposiotry.save(quiz);
     }
 
@@ -86,7 +84,7 @@ public class QuizServiceImpl implements QuizService {
 
 @Override
 public Quiz getQuizById(Long id) {
-    return quizReposiotry.findById(id)
+  return quizReposiotry.findById(id)
             .orElseThrow(() -> new RuntimeException("Quiz không tồn tại với ID: " + id));
 }
 
@@ -130,15 +128,34 @@ public Quiz getQuizById(Long id) {
         Page<Quiz> quizPage = quizReposiotry.findAll(specification, pageable);
         ResultPaginationDTO rs = new ResultPaginationDTO();
         ResultPaginationDTO.Meta mt = new ResultPaginationDTO.Meta();
-        mt.setPage(pageable.getPageNumber() + 1); // Page bd từ 0
-        mt.setPageSize(pageable.getPageSize());
+        mt.setPage(pageable.getPageNumber() ); // Page bd từ 0
+        mt.setPageSize(pageable.getPageSize()); //
         mt.setPages(quizPage.getTotalPages());
-        mt.setTotal(quizPage.getTotalPages());
+        mt.setTotal(quizPage.getTotalElements());
          rs.setMeta(mt);
+//        List<ResQuizDTO> dtoList = quizPage.getContent().stream()
+//                .map(this::convertQuizToResQuizDTO)  // gọi trực tiếp
+//                .toList();
          rs.setData(quizPage.getContent());
          return rs;
 }
 
+    @Override
+    public ResQuizDTO convertQuizToResQuizDTO(Quiz quiz) {
+        ResQuizDTO res = new ResQuizDTO();
+        res.setId(quiz.getId());
+        res.setTitle(quiz.getTitle());
+        res.setDescription(quiz.getDescription());
+        res.setPublic(quiz.isPublic());
+        res.setCreateAt(quiz.getCreateAt());
+        res.setCreateBy(quiz.getCreateBy());
+        res.setUniversity(quiz.getUniversity());
+        res.setSubject(quiz.getSubject());
+        res.setLogo(quiz.getLogo());
+        res.setDuration(quiz.getDuration());
+        res.setTotalQuestions(quiz.getQuestions() != null ? quiz.getQuestions().size() : 5);
+        return res;
+    }
 
 
 }

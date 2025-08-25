@@ -20,4 +20,6 @@ public interface AnswerService {
 
     // Convert DTO Answer
     Answer convertDTO(Answer answer);
+
+    // Get Answer by
 }

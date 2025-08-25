@@ -1,11 +1,18 @@
 package com.example.Courses.service;
 
+import com.example.Courses.domain.model.Quiz;
 import com.example.Courses.domain.response.ResCreateUserDTO;
 import com.example.Courses.domain.model.User;
+import com.example.Courses.domain.response.ResultPaginationDTO;
 import com.example.Courses.repository.UserRepository;
 import com.example.Courses.Util.constant.LoginType;
 import com.example.Courses.Util.constant.RoleUser;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class UserService {
@@ -16,23 +23,16 @@ public class UserService {
 
     // Create Access Token :
 
-//     Post new User
-    public User handleSaveUser(User user){
-        User usercurrent = this.userRepository.save(user);
-        return usercurrent;
-//        System.out.println("Vừa thêm một user thành công " + user);
-    }
-
 //    Convert User sang ResCreateUserDTO
-    public ResCreateUserDTO convertUserToDTO(User user){
-    ResCreateUserDTO userDTO = new ResCreateUserDTO();
-    userDTO.setEmail(user.getEmail());
-    userDTO.setPassword(user.getPassword());
-
-    userDTO.setId(user.getId());
-    userDTO.setUsername(user.getUsername());
-    return userDTO;
-    }
+//    public ResCreateUserDTO convertUserToDTO(User user){
+//    ResCreateUserDTO userDTO = new ResCreateUserDTO();
+//    userDTO.setEmail(user.getEmail());
+//    userDTO.setPassword(user.getPassword());
+//
+//    userDTO.setId(user.getId());
+//    userDTO.setUsername(user.getUsername());
+//    return userDTO;
+//    }
     // Check email is Exist
     public boolean isEmailExist(String email) {
         return this.userRepository.existsByEmail(email);
@@ -50,7 +50,6 @@ public class UserService {
     }
     // Create User
 public User handleCreateUser(User user) {
-
     return this.userRepository.save(user);
 }
 
@@ -74,7 +73,42 @@ public ResCreateUserDTO convertToResCreateUserDTO(User user) {
     res.setId(user.getId());
     res.setEmail(user.getEmail());
   res.setUsername(user.getUsername());
+  res.setCreateAt(user.getCreateAt());
+
     return res;
 }
+// Fetch Paginigation
+   public ResultPaginationDTO getAllUsers(Pageable pageable, Specification<User> specification) {
+        Page<User> users = userRepository.findAll(specification, pageable);
+        ResultPaginationDTO rs = new ResultPaginationDTO();
+        ResultPaginationDTO.Meta mt = new ResultPaginationDTO.Meta();
+        mt.setPage(pageable.getPageNumber());
+        mt.setPageSize(pageable.getPageSize());
+        mt.setPages(users.getTotalPages());
+        mt.setTotal(users.getTotalElements());
+        rs.setMeta(mt);
+        rs.setData(users.getContent());
+        return rs;
+   }
+
+public List<User> hanldeFetchUser() {
+     return   this.userRepository.findAll();
+}
+// Hàm update
+    public User handleUpdateUser(Long id,User user) {
+        User currentUser = this.userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tồn tại user với ID "+ id) );
+        currentUser.setUsername(user.getUsername());
+return currentUser;
+    }
+
+//     Hàm Delete
+    public void handleDeleteUser(Long id) {
+        if(this.userRepository.existsById(id)) {
+            this.userRepository.deleteById(id);
+        }else {
+            throw new RuntimeException("Không tồn tại User với id " + id);
+        }
+    }
 
 }
