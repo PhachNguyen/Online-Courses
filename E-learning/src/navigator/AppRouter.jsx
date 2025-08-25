@@ -1,5 +1,5 @@
 //  Router  chứa toàn bộ cấu trúc chính của ứng dụng .
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import LoginPage from "../pages/Login";
 import RegisterPage from "../pages/Register";
 import Header from "../components/Header";
@@ -11,11 +11,17 @@ import QuizQuestions from "../pages/teacher/Quiz/QuizQuestions";
 import QuizAdvanced from "../pages/teacher/Quiz/QuizAdvanced";
 import QuizHistory from "../pages/teacher/Quiz/QuizHistory";
 import QuizStatistics from "../pages/teacher/Quiz/QuizStatistics";
+import QuizStart from "../pages/QuizDetail";
+import AdminDashboard from "../pages/admin/AdminDashboard";
+import StudentManagement from "../pages/admin/StudentManagement";
 
-export default function AppRouter() {
+function Layout() {
+    const location = useLocation();
+    const isAdminRoute = location.pathname.startsWith('/admin');
+
     return (
         <>
-            <Header />
+            {!isAdminRoute && <Header />}
             <Routes>
                 <Route path="/Home" element={<Home />} />
                 <Route path="/login" element={<LoginPage />} />
@@ -26,8 +32,17 @@ export default function AppRouter() {
                 <Route path="/quiz/create/advanced" element={<QuizAdvanced />} />
                 <Route path="/quiz/create/history" element={<QuizHistory />} />
                 <Route path="/quiz/create/statistics" element={<QuizStatistics />} />
+                <Route path="/quiz/:id" element={<QuizStart />} />
+
+                {/*  Admin */}
+                <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                <Route path="/admin/students" element={<StudentManagement />} />
             </Routes>
-            <Footer />
+            {!isAdminRoute && <Footer />}
         </>
     );
+}
+
+export default function AppRouter() {
+    return <Layout />;
 }

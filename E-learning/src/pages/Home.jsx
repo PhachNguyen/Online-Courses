@@ -1,243 +1,457 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-// import { AcademicCapIcon, BookOpenIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
-
-const subjects = [
-    {
-        name: 'Toán',
-        desc: 'Ôn tập các đề trắc nghiệm theo chương trình THPT.',
-        icon: <span className="text-4xl mb-2">🧮</span>,
-        link: '/student/quizzes',
-    },
-    {
-        name: 'Văn',
-        desc: 'Ôn tập các đề trắc nghiệm theo chương trình THPT.',
-        icon: <span className="text-4xl mb-2">📖</span>,
-        link: '/student/quizzes',
-    },
-    {
-        name: 'Anh Văn',
-        desc: 'Ôn tập các đề trắc nghiệm theo chương trình THPT.',
-        icon: <span className="text-4xl mb-2">🌐</span>,
-        link: '/student/quizzes',
-    },
-    {
-        name: 'Vật Lý',
-        desc: 'Ôn tập các đề trắc nghiệm Vật Lý THPT.',
-        icon: <span className="text-4xl mb-2">🔬</span>,
-        link: '/student/quizzes',
-    },
-    {
-        name: 'Hóa Học',
-        desc: 'Ôn tập các đề trắc nghiệm Hóa Học THPT.',
-        icon: <span className="text-4xl mb-2">⚗️</span>,
-        link: '/student/quizzes',
-    },
-    {
-        name: 'Sinh Học',
-        desc: 'Ôn tập các đề trắc nghiệm Sinh Học THPT.',
-        icon: <span className="text-4xl mb-2">🧬</span>,
-        link: '/student/quizzes',
-    },
-    {
-        name: 'Lịch Sử',
-        desc: 'Ôn tập các đề trắc nghiệm Lịch Sử THPT.',
-        icon: <span className="text-4xl mb-2">🏺</span>,
-        link: '/student/quizzes',
-    },
-    {
-        name: 'Địa Lý',
-        desc: 'Ôn tập các đề trắc nghiệm Địa Lý THPT.',
-        icon: <span className="text-4xl mb-2">🌏</span>,
-        link: '/student/quizzes',
-    },
-    {
-        name: 'Tin Học',
-        desc: 'Ôn tập các đề trắc nghiệm Tin Học THPT.',
-        icon: <span className="text-4xl mb-2">💻</span>,
-        link: '/student/quizzes',
-    },
-    {
-        name: 'GDCD',
-        desc: 'Ôn tập các đề trắc nghiệm Giáo dục công dân THPT.',
-        icon: <span className="text-4xl mb-2">⚖️</span>,
-        link: '/student/quizzes',
-    },
-];
+import { 
+    Play, 
+    Users, 
+    BookOpen, 
+    Award, 
+    Star, 
+    ArrowRight, 
+    CheckCircle, 
+    Clock, 
+    TrendingUp,
+    Code,
+    Database,
+    Globe,
+    Smartphone,
+    Server,
+    Layers,
+    ChevronRight,
+    Building,
+    Briefcase,
+    Target
+} from 'lucide-react';
 
 const Home = () => {
-    const [startIdx, setStartIdx] = useState(0);
-    const itemsPerView = 4;
-    const canScrollLeft = startIdx > 0; // Kiểm tra xem có thể cuộn sang trái không
-    const canScrollRight = startIdx + itemsPerView < subjects.length; // Kiểm tra xem có thể cuộn sang phải không
+    const [currentSlide, setCurrentSlide] = useState(0);
+    
+    // Stats animation
+    const [stats, setStats] = useState({ students: 0, courses: 0, companies: 0, jobs: 0 });
+    
+    useEffect(() => {
+        const targets = { students: 12500, courses: 180, companies: 450, jobs: 2800 };
+        const duration = 2000;
+        
+        Object.keys(targets).forEach(key => {
+            let start = 0;
+            const end = targets[key];
+            const increment = end / (duration / 16);
+            
+            const timer = setInterval(() => {
+                start += increment;
+                if (start >= end) {
+                    start = end;
+                    clearInterval(timer);
+                }
+                setStats(prev => ({ ...prev, [key]: Math.floor(start) }));
+            }, 16);
+        });
+    }, []);
 
-    const handlePrev = () => {
-        if (canScrollLeft) setStartIdx(startIdx - 1); // Cuộn sang trái
-    };
-    const handleNext = () => {
-        if (canScrollRight) setStartIdx(startIdx + 1); // Cuộn sang phải
-    };
+    const courses = [
+        {
+            id: 1,
+            title: 'React.js Complete Course',
+            description: 'Master modern React development with hooks, context, and advanced patterns',
+            icon: <Code className="w-8 h-8" />,
+            students: '8,945',
+            lessons: 156,
+            duration: '42 hours',
+            level: 'Intermediate',
+            price: '$89',
+            originalPrice: '$149',
+            rating: 4.9,
+            instructor: 'John Smith',
+            category: 'Frontend',
+            tags: ['React', 'JavaScript', 'Hooks'],
+            color: 'bg-blue-500'
+        },
+        {
+            id: 2,
+            title: 'Node.js & Express Backend',
+            description: 'Build scalable backend applications with Node.js, Express, and MongoDB',
+            icon: <Server className="w-8 h-8" />,
+            students: '6,234',
+            lessons: 128,
+            duration: '38 hours',
+            level: 'Advanced',
+            price: '$99',
+            originalPrice: '$169',
+            rating: 4.8,
+            instructor: 'Sarah Johnson',
+            category: 'Backend',
+            tags: ['Node.js', 'Express', 'MongoDB'],
+            color: 'bg-green-500'
+        },
+        {
+            id: 3,
+            title: 'Full Stack JavaScript',
+            description: 'Complete full-stack development with MERN stack and deployment',
+            icon: <Layers className="w-8 h-8" />,
+            students: '12,567',
+            lessons: 200,
+            duration: '65 hours',
+            level: 'Expert',
+            price: '$129',
+            originalPrice: '$199',
+            rating: 4.9,
+            instructor: 'Mike Chen',
+            category: 'Full Stack',
+            tags: ['MERN', 'React', 'Node.js'],
+            color: 'bg-purple-500'
+        },
+        {
+            id: 4,
+            title: 'Python for Data Science',
+            description: 'Data analysis, machine learning, and visualization with Python',
+            icon: <Database className="w-8 h-8" />,
+            students: '5,678',
+            lessons: 142,
+            duration: '45 hours',
+            level: 'Intermediate',
+            price: '$79',
+            originalPrice: '$139',
+            rating: 4.7,
+            instructor: 'Dr. Lisa Wang',
+            category: 'Data Science',
+            tags: ['Python', 'Pandas', 'ML'],
+            color: 'bg-orange-500'
+        }
+    ];
+
+    const features = [
+        {
+            icon: <Code className="w-6 h-6" />,
+            title: 'Industry-Standard Projects',
+            description: 'Build real-world applications that employers actually want to see'
+        },
+        {
+            icon: <Users className="w-6 h-6" />,
+            title: 'Expert Instructors',
+            description: 'Learn from senior developers working at top tech companies'
+        },
+        {
+            icon: <Award className="w-6 h-6" />,
+            title: 'Career Support',
+            description: 'Job placement assistance and portfolio reviews included'
+        },
+        {
+            icon: <Clock className="w-6 h-6" />,
+            title: 'Flexible Learning',
+            description: 'Self-paced courses that fit your schedule and learning style'
+        }
+    ];
+
+    const testimonials = [
+        {
+            name: 'Alex Rodriguez',
+            role: 'Frontend Developer',
+            company: 'Google',
+            content: 'The React course helped me land my dream job at Google. The projects were challenging and practical.',
+            avatar: '👨‍💻',
+            rating: 5,
+            salary: '$120k/year'
+        },
+        {
+            name: 'Emily Chen',
+            role: 'Full Stack Developer',
+            company: 'Stripe',
+            content: 'Excellent course structure and real-world projects. I went from beginner to employed in 6 months.',
+            avatar: '👩‍💻',
+            rating: 5,
+            salary: '$95k/year'
+        },
+        {
+            name: 'David Kim',
+            role: 'Backend Engineer',
+            company: 'Netflix',
+            content: 'The Node.js course covered everything I needed. Great instructor support and community.',
+            avatar: '👨‍💼',
+            rating: 5,
+            salary: '$110k/year'
+        }
+    ];
+
+    const companies = [
+        { name: 'Google', logo: '🔍' },
+        { name: 'Microsoft', logo: '🏢' },
+        { name: 'Netflix', logo: '📺' },
+        { name: 'Spotify', logo: '🎵' },
+        { name: 'Uber', logo: '🚗' },
+        { name: 'Airbnb', logo: '🏠' }
+    ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-100 to-white text-gray-800">
-            {/* Banner thông báo nổi bật */}
-            <div className="w-full bg-gradient-to-r from-pink-400 to-indigo-500 text-white py-3 px-6 text-center font-semibold mb-8 rounded-xl shadow">
-                🎉 Chào mừng bạn đến với hệ thống ôn luyện trắc nghiệm! Đăng ký ngay để nhận nhiều ưu đãi!
-            </div>
+        <div className="min-h-screen bg-white">
+            {/* Hero Section */}
+            <section className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white overflow-hidden">
+                <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:60px_60px]" />
+                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
+                    <div className="grid lg:grid-cols-2 gap-12 items-center">
+                        <div className="space-y-8">
+                            <div className="inline-flex items-center px-4 py-2 bg-blue-500/20 text-blue-300 rounded-full text-sm font-medium border border-blue-500/30">
+                                <TrendingUp className="w-4 h-4 mr-2" />
+                                Join 12,500+ developers advancing their careers
+                            </div>
+                            
+                            <div className="space-y-6">
+                                <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
+                                    Master
+                                    <span className="block text-blue-400">Modern</span>
+                                    Development
+                                </h1>
+                                <p className="text-xl text-gray-300 leading-relaxed max-w-2xl">
+                                    Learn cutting-edge technologies from industry experts. Build real projects, 
+                                    get job-ready skills, and advance your tech career.
+                                </p>
+                            </div>
+                            
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <Link
+                                    to="/courses"
+                                    className="inline-flex items-center justify-center px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-lg"
+                                >
+                                    Browse Courses
+                                    <ArrowRight className="ml-2 w-5 h-5" />
+                                </Link>
+                                <button className="inline-flex items-center justify-center px-8 py-4 border border-gray-600 text-gray-300 font-semibold rounded-lg hover:bg-gray-800 transition-colors">
+                                    <Play className="mr-2 w-5 h-5" />
+                                    Watch Demo
+                                </button>
+                            </div>
 
-            <section className="flex flex-col items-center justify-center text-center py-20 px-4 bg-gradient-to-r from-indigo-500 to-pink-500 text-white shadow-lg rounded-b-3xl">
-                <h1 className="text-5xl md:text-6xl font-extrabold mb-6 drop-shadow-lg">Ôn luyện mọi lúc, mọi nơi!</h1>
-                <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto opacity-90">
-                    Tham gia hệ thống trắc nghiệm trực tuyến miễn phí, dễ sử dụng, phù hợp học sinh THPT & ôn thi đại học.
-                </p>
-                <Link
-                    to="/student/dashboard"
-                    className="bg-white text-indigo-600 font-bold px-8 py-4 rounded-full shadow-lg hover:bg-indigo-50 hover:scale-105 transition text-lg"
-                >
-                    Bắt đầu ngay
-                </Link>
+                            {/* Stats */}
+                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 pt-8">
+                                <div className="text-center">
+                                    <div className="text-3xl font-bold text-blue-400">{stats.students.toLocaleString()}</div>
+                                    <div className="text-sm text-gray-400">Students</div>
+                                </div>
+                                <div className="text-center">
+                                    <div className="text-3xl font-bold text-green-400">{stats.courses}</div>
+                                    <div className="text-sm text-gray-400">Courses</div>
+                                </div>
+                                <div className="text-center">
+                                    <div className="text-3xl font-bold text-purple-400">{stats.companies}</div>
+                                    <div className="text-sm text-gray-400">Companies</div>
+                                </div>
+                                <div className="text-center">
+                                    <div className="text-3xl font-bold text-orange-400">{stats.jobs}</div>
+                                    <div className="text-sm text-gray-400">Job Placements</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="relative">
+                            <div className="bg-gray-800 rounded-lg p-6 shadow-2xl border border-gray-700">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                                    <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                                </div>
+                                <pre className="text-green-400 text-sm overflow-hidden">
+{`import React, { useState } from 'react';
+
+function App() {
+  const [count, setCount] = useState(0);
+  
+  return (
+    <div className="app">
+      <h1>Counter: {count}</h1>
+      <button onClick={() => setCount(count + 1)}>
+        Increment
+      </button>
+    </div>
+  );
+}
+
+export default App;`}
+                                </pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </section>
 
-            {/* Chủ đề phổ biến */}
-            <section className="py-16 w-full px-10">
-                <div className="flex items-center justify-between mb-10">
-                    <h2 className="text-3xl font-bold text-gray-800">Chủ đề phổ biến</h2>
-                    <Link to="/all-subjects" className="text-indigo-600 font-medium hover:underline hover:text-pink-500 transition">Xem tất cả</Link>
-                </div>
-                <div className="relative">
-                    <button
-                        onClick={handlePrev}
-                        disabled={!canScrollLeft}
-                        className={`absolute -left-15 top-1/2 -translate-y-1/2 z-10 w-16 h-16 flex items-center justify-center bg-white shadow-lg rounded-full border-2 border-indigo-200 transition hover:bg-indigo-100 hover:scale-110 active:scale-95 focus:outline-none ${!canScrollLeft ? 'opacity-30 cursor-not-allowed' : ''}`}
-                        aria-label="Trước"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-9 h-9 text-indigo-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
-                        </svg>
-                    </button>
-                    <div className="flex space-x-8 overflow-hidden justify-center">
-                        {subjects.slice(startIdx, startIdx + itemsPerView).map((subject, idx) => ( // Cắt các phần tử từ startIdx đến startIdx + itemsPerView
-                            <div // idx : Vị trí trong mảng
-                                key={startIdx + idx}
-                                className="flex-shrink-0 w-96 h-80 flex flex-col items-center justify-center bg-white rounded-2xl shadow-md hover:shadow-xl transition p-10 text-center border border-gray-100"
-                            >
-                                {subject.icon}
-                                <h3 className="text-xl font-semibold mb-2 text-indigo-700">{subject.name}</h3>
-                                <p className="mb-4 text-gray-600 min-h-[48px] flex items-center justify-center">{subject.desc}</p>
-                                <Link
-                                    to={subject.link}
-                                    className="text-indigo-600 font-medium mt-2 inline-block hover:underline hover:text-pink-500 transition"
-                                >
-                                    Bắt đầu học →
-                                </Link>
+            {/* Popular Courses */}
+            <section className="py-20 bg-gray-50">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-16">
+                        <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                            Popular Courses
+                        </h2>
+                        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                            Master the most in-demand skills in tech
+                        </p>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        {courses.map((course, index) => (
+                            <div key={course.id} className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow overflow-hidden group h-full flex flex-col">
+                                <div className="p-6 flex-1 flex flex-col">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className={`w-12 h-12 ${course.color} rounded-lg flex items-center justify-center text-white`}>
+                                            {course.icon}
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                            <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                                            <span className="text-sm font-medium">{course.rating}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="mb-4">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                                                {course.category}
+                                            </span>
+                                            <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
+                                                {course.level}
+                                            </span>
+                                        </div>
+                                        <h3 className="text-xl font-bold text-gray-900 mb-2">{course.title}</h3>
+                                        <p className="text-gray-600 text-sm mb-4 line-clamp-3">{course.description}</p>
+                                    </div>
+
+                                    <div className="flex flex-wrap gap-1 mb-4 min-h-[2rem]">
+                                        {course.tags.map((tag, idx) => (
+                                            <span key={idx} className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
+
+                                    <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex items-center gap-1">
+                                                <Users className="w-4 h-4" />
+                                                <span>{course.students}</span>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <Clock className="w-4 h-4" />
+                                                <span>{course.duration}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center justify-between mb-6 mt-auto">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-2xl font-bold text-gray-900">{course.price}</span>
+                                            <span className="text-sm text-gray-500 line-through">{course.originalPrice}</span>
+                                        </div>
+                                    </div>
+
+                                    <Link
+                                        to={`/course/${course.id}`}
+                                        className="block w-full text-center py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors group-hover:bg-blue-600 mt-auto"
+                                    >
+                                        Enroll Now
+                                    </Link>
+                                </div>
                             </div>
                         ))}
                     </div>
-                    <button
-                        onClick={handleNext}
-                        disabled={!canScrollRight}
-                        className={`absolute -right-2 top-1/2 -translate-y-1/2 z-10 w-16 h-16 flex items-center justify-center bg-white shadow-lg rounded-full border-2 border-indigo-200 transition hover:bg-indigo-100 hover:scale-110 active:scale-95 focus:outline-none ${!canScrollRight ? 'opacity-30 cursor-not-allowed' : ''}`}
-                        aria-label="Sau"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-9 h-9 text-indigo-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
-                        </svg>
-                    </button>
                 </div>
             </section>
 
-            {/* Tính năng nổi bật */}
-            <section className="py-16 w-full">
-                <h2 className="text-3xl font-bold mb-10 text-center text-gray-800">Tính năng nổi bật</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
-                    <div className="bg-white rounded-xl shadow p-8 text-center flex flex-col items-center">
-                        <div className="text-4xl mb-3">📝</div>
-                        <h3 className="font-semibold text-lg mb-2">Ngân hàng đề thi đa dạng</h3>
-                        <p className="text-gray-600">Hàng ngàn đề thi thử, đề kiểm tra các môn học, cập nhật liên tục.</p>
+            {/* Features */}
+            <section className="py-20">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-16">
+                        <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                            Why Choose Our Platform?
+                        </h2>
+                        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                            We provide everything you need to succeed in your tech career
+                        </p>
                     </div>
-                    <div className="bg-white rounded-xl shadow p-8 text-center flex flex-col items-center">
-                        <div className="text-4xl mb-3">📈</div>
-                        <h3 className="font-semibold text-lg mb-2">Phân tích kết quả thông minh</h3>
-                        <p className="text-gray-600">Xem lại lịch sử làm bài, phân tích điểm mạnh/yếu, đề xuất lộ trình học tập.</p>
-                    </div>
-                    <div className="bg-white rounded-xl shadow p-8 text-center flex flex-col items-center">
-                        <div className="text-4xl mb-3">⏰</div>
-                        <h3 className="font-semibold text-lg mb-2">Thi thử trực tuyến</h3>
-                        <p className="text-gray-600">Trải nghiệm thi thử như thật, bấm giờ, chấm điểm tự động.</p>
+
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        {features.map((feature, index) => (
+                            <div key={index} className="text-center p-6 rounded-xl hover:bg-gray-50 transition-colors">
+                                <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 text-blue-600 rounded-lg mb-4">
+                                    {feature.icon}
+                                </div>
+                                <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
+                                <p className="text-gray-600">{feature.description}</p>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </section>
 
-            {/* Hướng dẫn sử dụng nhanh */}
-            <section className="py-12 w-full">
-                <h2 className="text-2xl font-bold text-center mb-8 text-indigo-700">Bắt đầu chỉ với 3 bước</h2>
-                <div className="flex flex-col md:flex-row gap-8 justify-center items-center">
-                    <div className="flex flex-col items-center">
-                        <div className="bg-indigo-500 text-white rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold mb-2">1</div>
-                        <div>Đăng ký tài khoản</div>
+            {/* Success Stories */}
+            <section className="py-20 bg-gray-900 text-white">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-16">
+                        <h2 className="text-4xl font-bold mb-4">Success Stories</h2>
+                        <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+                            Our graduates are working at top tech companies worldwide
+                        </p>
                     </div>
-                    <div className="flex flex-col items-center">
-                        <div className="bg-indigo-500 text-white rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold mb-2">2</div>
-                        <div>Chọn chủ đề & đề thi</div>
+
+                    <div className="grid md:grid-cols-3 gap-8 mb-16">
+                        {testimonials.map((testimonial, index) => (
+                            <div key={index} className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                                <div className="flex items-center gap-1 mb-4">
+                                    {[...Array(testimonial.rating)].map((_, i) => (
+                                        <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
+                                    ))}
+                                </div>
+                                
+                                <blockquote className="text-gray-300 mb-6">
+                                    "{testimonial.content}"
+                                </blockquote>
+                                
+                                <div className="flex items-center gap-3">
+                                    <div className="text-2xl">{testimonial.avatar}</div>
+                                    <div>
+                                        <div className="font-bold">{testimonial.name}</div>
+                                        <div className="text-sm text-gray-400">{testimonial.role} at {testimonial.company}</div>
+                                        <div className="text-sm text-green-400">{testimonial.salary}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                    <div className="flex flex-col items-center">
-                        <div className="bg-indigo-500 text-white rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold mb-2">3</div>
-                        <div>Làm bài & xem kết quả</div>
+
+                    {/* Companies */}
+                    <div className="text-center">
+                        <h3 className="text-2xl font-bold mb-8 text-gray-300">Our graduates work at</h3>
+                        <div className="flex flex-wrap justify-center items-center gap-8">
+                            {companies.map((company, index) => (
+                                <div key={index} className="flex items-center gap-2 bg-gray-800 px-4 py-2 rounded-lg border border-gray-700">
+                                    <span className="text-2xl">{company.logo}</span>
+                                    <span className="font-semibold text-gray-300">{company.name}</span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </section>
 
-            {/* Đánh giá học viên */}
-            <section className="py-12 w-full bg-white">
-                <h2 className="text-2xl font-bold text-center mb-8 text-indigo-700">Học viên nói gì?</h2>
-                <div className="flex flex-col md:flex-row gap-8 justify-center items-center">
-                    <div className="bg-indigo-50 rounded-xl p-6 shadow w-full md:w-1/3 text-center">
-                        <p className="italic mb-4">"Trang web rất dễ sử dụng, đề thi đa dạng và phân tích kết quả rất hữu ích!"</p>
-                        <div className="font-semibold">Nguyễn Văn A</div>
-                    </div>
-                    <div className="bg-indigo-50 rounded-xl p-6 shadow w-full md:w-1/3 text-center">
-                        <p className="italic mb-4">"Nhờ luyện đề ở đây mà mình tự tin hơn khi đi thi thật."</p>
-                        <div className="font-semibold">Trần Thị B</div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Về chúng tôi */}
-            <section className="py-12 w-full bg-gradient-to-r from-indigo-50 to-pink-50">
-                <h2 className="text-2xl font-bold text-center mb-8 text-indigo-700">Về chúng tôi</h2>
-                <div className="max-w-3xl mx-auto text-center text-gray-700">
-                    <p>
-                        Hệ thống được phát triển bởi đội ngũ giáo viên và kỹ sư tâm huyết, với mong muốn mang đến trải nghiệm ôn luyện hiệu quả, hiện đại cho học sinh Việt Nam.
+            {/* CTA Section */}
+            <section className="py-20 bg-blue-600">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
+                        Ready to Start Your Tech Career?
+                    </h2>
+                    <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
+                        Join thousands of developers who have transformed their careers with our courses
                     </p>
-                </div>
-            </section>
-
-            {/* Đối tác/Logo trường học (placeholder) */}
-            <section className="py-12 w-full">
-                <h2 className="text-2xl font-bold text-center mb-8 text-indigo-700">Đối tác & Trường học</h2>
-                <div className="flex flex-wrap justify-center items-center gap-8 opacity-60">
-                    <div className="w-32 h-16 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">Logo 1</div>
-                    <div className="w-32 h-16 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">Logo 2</div>
-                    <div className="w-32 h-16 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">Logo 3</div>
-                    <div className="w-32 h-16 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">Logo 4</div>
-                </div>
-            </section>
-
-            {/* FAQ */}
-            <section className="py-16 px-4 max-w-4xl mx-auto flex flex-col">
-                <h2 className="text-2xl font-bold mb-8 text-center">Câu hỏi thường gặp</h2>
-                <div className="space-y-6">
-                    <div>
-                        <h4 className="font-semibold text-indigo-600">EduQuiz có miễn phí không?</h4>
-                        <p className="text-gray-700">Hiện tại, bạn có thể sử dụng hầu hết các tính năng hoàn toàn miễn phí.</p>
-                    </div>
-                    <div>
-                        <h4 className="font-semibold text-indigo-600">Tôi có thể làm lại đề thi không?</h4>
-                        <p className="text-gray-700">Bạn có thể làm lại đề thi nhiều lần để luyện tập và cải thiện kết quả.</p>
-                    </div>
-                    <div>
-                        <h4 className="font-semibold text-indigo-600">Làm sao để liên hệ hỗ trợ?</h4>
-                        <p className="text-gray-700">Bạn có thể sử dụng nút chat ở góc phải màn hình hoặc gửi email cho chúng tôi.</p>
+                    
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                        <Link
+                            to="/register"
+                            className="inline-flex items-center justify-center px-8 py-4 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors shadow-lg"
+                        >
+                            Get Started Free
+                            <ArrowRight className="ml-2 w-5 h-5" />
+                        </Link>
+                        <Link
+                            to="/courses"
+                            className="inline-flex items-center justify-center px-8 py-4 border-2 border-white text-white font-semibold rounded-lg hover:bg-white hover:text-blue-600 transition-colors"
+                        >
+                            Browse All Courses
+                        </Link>
                     </div>
                 </div>
             </section>

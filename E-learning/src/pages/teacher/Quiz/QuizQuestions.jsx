@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import QuizStepper from "./QuizStepper";
 import RichTextEditor from "../../../components/RichTextEditor";
 import QuizSidebar from "../../../components/QuizSidebar";
 import api from "../../../config/AxiosConfig";
 
+// Validate
 function validateQuestion({ questionType, questionContent, answers }) {
     if (!questionContent || !String(questionContent).trim()) return "Vui lòng nhập nội dung câu hỏi.";
     if (questionType === "MULTIPLE_CHOICE" && answers.filter(a => (a.content || "").trim()).length < 2)
@@ -18,6 +19,7 @@ function validateQuestion({ questionType, questionContent, answers }) {
     return null;
 }
 
+// Init Object Question
 const QUESTION_TYPE_OPTIONS = [
     { value: "MULTIPLE_CHOICE", label: "Trắc nghiệm nhiều lựa chọn" },
     { value: "TRUE_FALSE", label: "Đúng/Sai" },
@@ -25,14 +27,16 @@ const QUESTION_TYPE_OPTIONS = [
 ];
 
 export default function QuizQuestions() {
-    // URL: ?id=<quizId> | ?quizId=<quizId>
+    // Lấy Path
+    const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const quizId = searchParams.get("id") || searchParams.get("quizId");
 
+    // Default is Multiple choice
     const [questionType, setQuestionType] = useState("MULTIPLE_CHOICE");
-    const [questionContent, setQuestionContent] = useState("");
-    const [learningTopic, setLearningTopic] = useState("");
-    const [answers, setAnswers] = useState([{ id: 1, content: "", isCorrect: true }]);
+    const [questionContent, setQuestionContent] = useState(""); // Content Question
+    const [learningTopic, setLearningTopic] = useState(""); // Topic 
+    const [answers, setAnswers] = useState([{ id: 1, content: "", isCorrect: true }]);  // Default is 
     const [explanation, setExplanation] = useState("");
     const [blankExplanation, setBlankExplanation] = useState("");
     const [currentSection, setCurrentSection] = useState("Phần 1");
@@ -45,7 +49,7 @@ export default function QuizQuestions() {
     const [loading, setLoading] = useState(false);
 
     // --- Helpers ---
-    const normalizeQuestionFromBE = (q) => {
+    const normalizeQuestionFromBE = (q) => { // Method chuẩn hóa lại section ở FE, và BE là level 
         // Một số BE trả "level", một số FE đang dùng "section" -> map về section
         const section = q.section || q.level || "Phần 1";
         const mappedAnswers = (q.answers || []).map((a, idx) => ({
@@ -70,7 +74,7 @@ export default function QuizQuestions() {
         try {
             setLoading(true);
             const res = await api.get(`/questions/quiz/${quizId}`);
-            const list = Array.isArray(res.data) ? res.data.map(normalizeQuestionFromBE) : [];
+            const list = Array.isArray(res.data.data) ? res.data.data.map(normalizeQuestionFromBE) : [];
             setQuestions(list);
             // Tập hợp các section có trong câu hỏi để render sidebar
             const uniqSections = Array.from(new Set([...(list.map(q => q.section)), ...sections]));
@@ -187,10 +191,31 @@ export default function QuizQuestions() {
             setLoading(false);
         }
     }
+    // Finish 
+    const handleFinalizeQuiz = async () => {
+        setError("");
+        setSuccess("");
 
+        if (!quizId) {
+            setError("Thiếu quizId trên URL.");
+            return;
+        }
+        if (!questions.length) {
+            setError("Cần ít nhất 1 câu hỏi để tạo đề thi.");
+            return;
+        }
+        if (isEditing) {
+            setError("Bạn đang chỉnh sửa dở một câu hỏi. Vui lòng lưu/hủy trước khi tạo đề thi.");
+            return;
+        }
+
+        // ✅ Không gọi API, chỉ thông báo + điều hướng
+        window.alert(" Tạo đề thi thành công!");
+        navigate("/dashboardTeacher"); // đổi path cho khớp router của bạn
+    }
     return (
         <div className="flex gap-8">
-            <div className="w-1/4">
+            <div className="w-1/4 ">
                 <h2 className="text-xl font-bold mb-4">Danh sách phần thi</h2>
                 <div className="space-y-2">
                     {sections.map(section => (
@@ -234,6 +259,11 @@ export default function QuizQuestions() {
                 <button onClick={handleAddQuestion} className="mt-4 block text-sm text-white bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg">
                     + Thêm câu hỏi
                 </button>
+
+                <button className=" justify-end"
+                    onClick={handleFinalizeQuiz}
+                    type="button"
+                > Tạo đề thi</button>
             </div>
 
             {/* Main form area */}
