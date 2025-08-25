@@ -11,7 +11,7 @@ const StudentManagement = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [filterStatus, setFilterStatus] = useState("all");
     const [currentPage, setCurrentPage] = useState(1);
-    const [studentsPerPage] = useState(10);
+    const [studentsPerPage] = useState(5); // Phân trang
     const [showModal, setShowModal] = useState(false);
     const [modalMode, setModalMode] = useState("add"); // add, edit, view
     const [selectedStudent, setSelectedStudent] = useState(null);
@@ -27,51 +27,7 @@ const StudentManagement = () => {
     });
 
 
-    // Mock data for development
-    const mockStudents = [
-        {
-            id: 1,
-            name: "Nguyễn Văn An",
-            email: "an.nguyen@email.com",
-            phone: "0123456789",
-            dateOfBirth: "2002-05-15",
-            address: "123 Đường ABC, Quận 1, TP.HCM",
-            status: "active",
-            enrollmentDate: "2024-01-15",
-            course: "React Fundamentals",
-            coursesCompleted: 3,
-            totalCourses: 5,
-            averageScore: 85.5
-        },
-        {
-            id: 2,
-            name: "Trần Thị Bình",
-            email: "binh.tran@email.com",
-            phone: "0987654321",
-            dateOfBirth: "2001-08-22",
-            address: "456 Đường XYZ, Quận 2, TP.HCM",
-            status: "active",
-            enrollmentDate: "2024-02-01",
-            course: "JavaScript Advanced",
-            coursesCompleted: 2,
-            totalCourses: 4,
-            averageScore: 92.0
-        },
-        {
-            id: 3,
-            name: "Lê Minh Cường",
-            email: "cuong.le@email.com",
-            phone: "0369852147",
-            dateOfBirth: "2003-03-10",
-            address: "789 Đường DEF, Quận 3, TP.HCM",
-            status: "inactive",
-            enrollmentDate: "2023-12-20",
-            course: "Python Basics",
-            coursesCompleted: 1,
-            totalCourses: 3,
-            averageScore: 78.5
-        }
-    ];
+
 
     useEffect(() => {
         fetchStudents();
@@ -80,18 +36,16 @@ const StudentManagement = () => {
     const fetchStudents = async () => {
         setLoading(true);
         try {
-            // TODO(stagewise): Uncomment when backend is ready
-            // const response = await axios.get(`${API_BASE_URL}/students`);
-            // setStudents(response.data);
-
+            const res = await api.get("/users"); // gọi API BE
+            setStudents(res.data.data); // 
+            // console.log(res.data.data);
             // Using mock data for now
             setTimeout(() => {
-                setStudents(mockStudents);
+                setStudents(res.data.data);
                 setLoading(false);
             }, 1000);
         } catch (error) {
             console.error("Error fetching students:", error);
-            setStudents(mockStudents);
             setLoading(false);
         }
     };
@@ -137,7 +91,7 @@ const StudentManagement = () => {
         if (window.confirm("Bạn có chắc chắn muốn xóa học sinh này?")) {
             try {
                 // TODO(stagewise): Replace with actual API call
-                // await axios.delete(`${API_BASE_URL}/students/${id}`);
+                await api.delete(`/users/${id}`);
 
                 // Mock implementation
                 setStudents(students.filter(student => student.id !== id));
@@ -152,14 +106,14 @@ const StudentManagement = () => {
         setSelectedStudent(student);
         if (student && mode !== "view") {
             setFormData({
-                name: student.name,
+                username: student.username,
                 email: student.email,
                 phone: student.phone,
-                dateOfBirth: student.dateOfBirth,
+                dob: student.dob,      // đổi đúng key
                 address: student.address,
-                status: student.status,
-                enrollmentDate: student.enrollmentDate,
-                course: student.course
+                status: student.status || "active",
+                enrollmentDate: student.createAt || "",
+                course: student.course || ""
             });
         }
         setShowModal(true);
@@ -167,10 +121,10 @@ const StudentManagement = () => {
 
     const resetForm = () => {
         setFormData({
-            name: "",
+            username: "",
             email: "",
             phone: "",
-            dateOfBirth: "",
+            dob: "",
             address: "",
             status: "active",
             enrollmentDate: "",
@@ -188,9 +142,9 @@ const StudentManagement = () => {
         }
     };
 
-    // Filter and search logic
+    // Filter kiểm tra Student 
     const filteredStudents = students.filter(student => {
-        const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        const matchesSearch = student.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
             student.email.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesFilter = filterStatus === "all" || student.status === filterStatus;
         return matchesSearch && matchesFilter;
@@ -291,7 +245,7 @@ const StudentManagement = () => {
                                             Liên hệ
                                         </th>
                                         <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Khóa học hiện tại
+                                            Khóa học đã mua
                                         </th>
                                         <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Tiến độ
@@ -329,7 +283,7 @@ const StudentManagement = () => {
                                                             <User size={16} className="text-blue-600" />
                                                         </div>
                                                         <div className="ml-3">
-                                                            <p className="text-sm font-medium text-gray-900">{student.name}</p>
+                                                            <p className="text-sm font-medium text-gray-900">{student.username}</p>
                                                             <p className="text-sm text-gray-500">ID: {student.id}</p>
                                                         </div>
                                                     </div>
@@ -339,9 +293,14 @@ const StudentManagement = () => {
                                                     <div className="text-sm text-gray-500">{student.phone}</div>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <div className="text-sm text-gray-900">{student.course}</div>
+                                                    <div className="text-sm text-gray-900">{student.course || "Chưa đăng ký khóa học nào "}</div>
                                                     <div className="text-sm text-gray-500">
-                                                        Đăng ký: {new Date(student.enrollmentDate).toLocaleDateString('vi-VN')}
+                                                        Đăng ký: {student.createAt ? new Date(student.createAt).toLocaleDateString('vi-VN', {
+                                                            day: '2-digit',
+                                                            month: '2-digit',
+                                                            year: 'numeric',
+                                                        })
+                                                            : "Chưa đăng ký ngày "}
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4">
@@ -449,8 +408,8 @@ const StudentManagement = () => {
                                 <X size={24} />
                             </button>
                         </div>
-
-                        {modalMode === "view" ? (
+                        {/* Pop up xem thông tin  */}
+                        {modalMode === "view" ? ( // Nếu không phải view thì popup ra edit và add
                             <div className="p-6">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
@@ -458,7 +417,7 @@ const StudentManagement = () => {
                                         <div className="space-y-3">
                                             <div>
                                                 <label className="text-sm font-medium text-gray-500">Họ tên</label>
-                                                <p className="text-gray-900">{selectedStudent?.name}</p>
+                                                <p className="text-gray-900">{selectedStudent?.username}</p>
                                             </div>
                                             <div>
                                                 <label className="text-sm font-medium text-gray-500">Email</label>
@@ -471,7 +430,7 @@ const StudentManagement = () => {
                                             <div>
                                                 <label className="text-sm font-medium text-gray-500">Ngày sinh</label>
                                                 <p className="text-gray-900">
-                                                    {new Date(selectedStudent?.dateOfBirth).toLocaleDateString('vi-VN')}
+                                                    {selectedStudent.dob}
                                                 </p>
                                             </div>
                                             <div>
@@ -490,7 +449,15 @@ const StudentManagement = () => {
                                             <div>
                                                 <label className="text-sm font-medium text-gray-500">Ngày đăng ký</label>
                                                 <p className="text-gray-900">
-                                                    {new Date(selectedStudent?.enrollmentDate).toLocaleDateString('vi-VN')}
+                                                    {selectedStudent.createAt
+                                                        ? new Date(selectedStudent.createAt).toLocaleString('vi-VN', {
+                                                            day: '2-digit',
+                                                            month: '2-digit',
+                                                            year: 'numeric',
+                                                            hour: '2-digit',
+                                                            minute: '2-digit'
+                                                        })
+                                                        : "Lỗi đăng ký"}
                                                 </p>
                                             </div>
                                             <div>
@@ -523,8 +490,8 @@ const StudentManagement = () => {
                                         <input
                                             type="text"
                                             required
-                                            value={formData.name}
-                                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                            value={formData.username}
+                                            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         />
                                     </div>
@@ -557,8 +524,8 @@ const StudentManagement = () => {
                                         </label>
                                         <input
                                             type="date"
-                                            value={formData.dateOfBirth}
-                                            onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                                            value={formData.dob}
+                                            onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
                                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         />
                                     </div>
