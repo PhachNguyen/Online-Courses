@@ -14,7 +14,7 @@ import QuizStatistics from "../pages/teacher/Quiz/QuizStatistics";
 import QuizStart from "../pages/QuizDetail";
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import StudentManagement from "../pages/admin/StudentManagement";
-
+import CourseManagement from "../pages/admin/CourseManagement";
 function Layout() {
     const location = useLocation();
     const isAdminRoute = location.pathname.startsWith('/admin');
@@ -37,6 +37,7 @@ function Layout() {
                 {/*  Admin */}
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
                 <Route path="/admin/students" element={<StudentManagement />} />
+                <Route path="/admin/courses" element={<CourseManagement />} />
             </Routes>
             {!isAdminRoute && <Footer />}
         </>
