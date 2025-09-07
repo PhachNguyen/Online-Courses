@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { 
-    Eye, 
-    EyeOff, 
-    Code, 
-    Mail, 
-    Lock, 
+import {
+    Eye,
+    EyeOff,
+    Code,
+    Mail,
+    Lock,
     ArrowRight,
     Github,
     Chrome,
@@ -78,9 +78,9 @@ export default function LoginPage() {
             setTimeout(() => {
                 const mockUser = { id: 1, email, role: "USER" };
                 const mockToken = "mock-jwt-token";
-                
+
                 setAuthData(mockToken, mockUser, rememberMe);
-                
+
                 // Navigate based on role or default to home
                 navigate("/Home");
                 setIsLoading(false);
@@ -124,7 +124,7 @@ export default function LoginPage() {
             <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white p-12 flex-col justify-between relative overflow-hidden">
                 {/* Background Pattern */}
                 <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:60px_60px]" />
-                
+
                 {/* Content */}
                 <div className="relative z-10">
                     {/* Logo */}
@@ -209,7 +209,7 @@ export default function LoginPage() {
                             <Chrome className="w-5 h-5 text-red-500" />
                             <span className="font-medium text-gray-700">Continue with Google</span>
                         </button>
-                        
+
                         <button className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                             <Github className="w-5 h-5 text-gray-900" />
                             <span className="font-medium text-gray-700">Continue with GitHub</span>
@@ -247,9 +247,8 @@ export default function LoginPage() {
                                     }}
                                     onFocus={() => setEmailError("")}
                                     placeholder="Enter your email"
-                                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${
-                                        emailError ? 'border-red-300' : 'border-gray-300'
-                                    }`}
+                                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${emailError ? 'border-red-300' : 'border-gray-300'
+                                        }`}
                                 />
                             </div>
                             {emailError && <p className="mt-1 text-sm text-red-600">{emailError}</p>}
@@ -274,9 +273,8 @@ export default function LoginPage() {
                                     }}
                                     onFocus={() => setPasswordError("")}
                                     placeholder="Enter your password"
-                                    className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${
-                                        passwordError ? 'border-red-300' : 'border-gray-300'
-                                    }`}
+                                    className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${passwordError ? 'border-red-300' : 'border-gray-300'
+                                        }`}
                                 />
                                 <button
                                     type="button"

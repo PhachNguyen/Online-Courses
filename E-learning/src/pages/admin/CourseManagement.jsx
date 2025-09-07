@@ -1,17 +1,23 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../../components/SidebarAdmin";
 import {
-    Search, Plus, Edit, Trash2, Eye, Filter, Download, Upload, BookOpen, X
+    Search, Plus, Edit, Trash2, Eye, Filter, X
 } from "lucide-react";
 import api from "../../config/AxiosConfig";
+import Quiz1 from "../../assets/images/quiz/Quiz1.jpg";
 
 const CourseManagement = () => {
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [filterStatus, setFilterStatus] = useState("all");
+
+    // Phân trang BE
     const [currentPage, setCurrentPage] = useState(1);
-    const [coursesPerPage] = useState(10);
+    const [coursesPerPage] = useState(5);
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalItems, setTotalItems] = useState(0);
+
     const [showModal, setShowModal] = useState(false);
     const [modalMode, setModalMode] = useState("add"); // add, edit, view
     const [selectedCourse, setSelectedCourse] = useState(null);
@@ -24,16 +30,24 @@ const CourseManagement = () => {
     });
 
     useEffect(() => {
-        fetchCourses();
-    }, []);
+        fetchCourses(currentPage);
+    }, [currentPage, filterStatus, searchTerm]);
 
-    const fetchCourses = async () => {
+    // Gọi API BE có phân trang
+    const fetchCourses = async (page = 1) => {
         setLoading(true);
         try {
-            const res = await api.get("/courses"); // gọi API BE
-            setCourses(res.data.data || res.data);
+            const res = await api.get(
+                `/courses?page=${page - 1}&size=${coursesPerPage}&status=${filterStatus}&search=${searchTerm}`
+            );
+            const { data, meta } = res.data.data;
+            setCourses(data || []);
+            setTotalPages(meta.pages);
+            setTotalItems(meta.total);
+            setCurrentPage(meta.page + 1);
         } catch (error) {
             console.error("Error fetching courses:", error);
+            setCourses([]);
         } finally {
             setLoading(false);
         }
@@ -41,8 +55,8 @@ const CourseManagement = () => {
 
     const handleAddCourse = async (data) => {
         try {
-            const res = await api.post("/courses", data);
-            setCourses([...courses, res.data.data]);
+            await api.post("/courses", data);
+            fetchCourses(currentPage);
             setShowModal(false);
             resetForm();
         } catch (err) {
@@ -52,8 +66,8 @@ const CourseManagement = () => {
 
     const handleUpdateCourse = async (id, data) => {
         try {
-            const res = await api.put(`/courses/${id}`, data);
-            setCourses(courses.map(c => c.id === id ? res.data.data : c));
+            await api.put(`/courses/${id}`, data);
+            fetchCourses(currentPage);
             setShowModal(false);
             resetForm();
         } catch (err) {
@@ -65,13 +79,14 @@ const CourseManagement = () => {
         if (window.confirm("Bạn có chắc chắn muốn xóa khóa học này?")) {
             try {
                 await api.delete(`/courses/${id}`);
-                setCourses(courses.filter(c => c.id !== id));
+                fetchCourses(currentPage);
             } catch (err) {
                 console.error("Error deleting course:", err);
             }
         }
     };
 
+    // Mở modal
     const openModal = (mode, course = null) => {
         setModalMode(mode);
         setSelectedCourse(course);
@@ -107,21 +122,6 @@ const CourseManagement = () => {
         }
     };
 
-    // Filter + Search
-    const filteredCourses = courses.filter(c => {
-        const matchesSearch =
-            (c.title || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (c.teacher || "").toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesFilter = filterStatus === "all" || c.status === filterStatus;
-        return matchesSearch && matchesFilter;
-    });
-
-    // Pagination
-    const indexOfLastCourse = currentPage * coursesPerPage;
-    const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
-    const currentCourses = filteredCourses.slice(indexOfFirstCourse, indexOfLastCourse);
-    const totalPages = Math.ceil(filteredCourses.length / coursesPerPage);
-
     const getStatusBadge = (status) => {
         const statusConfig = {
             active: { bg: "bg-green-100", text: "text-green-800", label: "Hoạt động" },
@@ -136,82 +136,95 @@ const CourseManagement = () => {
     };
 
     return (
-        <div className="flex h-screen bg-gray-50">
+        <div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-white">
             <Sidebar />
             <main className="flex-1 overflow-y-auto">
                 {/* Header */}
-                <div className="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Quản lý Khóa học</h1>
-                        <p className="text-gray-600 mt-1">Theo dõi và quản lý các khóa học</p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <button onClick={() => openModal("add")}
-                            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                            <Plus size={16} /> Thêm khóa học
-                        </button>
-                    </div>
+                <div className="bg-white border-b border-gray-200 px-8 py-6 flex justify-between items-center shadow-sm">
+                    <h1 className="text-2xl font-extrabold text-gray-700">Quản lý Khóa học</h1>
+                    <button
+                        onClick={() => openModal("add")}
+                        className="flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-xl shadow hover:bg-blue-700 transition-all"
+                    >
+                        <Plus size={18} /> Thêm khóa học
+                    </button>
                 </div>
 
                 {/* Search + Filter */}
-                <div className="p-6">
-                    <div className="bg-white rounded-lg shadow-sm border p-4 mb-6 flex gap-4">
-                        <div className="flex-1 relative">
-                            <Search size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                            <input
-                                type="text"
-                                placeholder="Tìm kiếm theo tên hoặc giảng viên..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                            />
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <Filter size={16} className="text-gray-500" />
-                            <select
-                                value={filterStatus}
-                                onChange={(e) => setFilterStatus(e.target.value)}
-                                className="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                            >
-                                <option value="all">Tất cả</option>
-                                <option value="active">Hoạt động</option>
-                                <option value="inactive">Không hoạt động</option>
-                            </select>
-                        </div>
+                <div className="p-6 max-w-6xl mx-auto">
+                    <div className="bg-white rounded-2xl shadow border p-4 mb-6 flex flex-col md:flex-row gap-4 items-center">
+                        <input
+                            type="text"
+                            placeholder="Tìm kiếm theo tên hoặc giảng viên..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full md:flex-1 px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-400"
+                        />
+                        <select
+                            value={filterStatus}
+                            onChange={(e) => setFilterStatus(e.target.value)}
+                            className="border rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-400"
+                        >
+                            <option value="all">Tất cả</option>
+                            <option value="active">Hoạt động</option>
+                            <option value="inactive">Không hoạt động</option>
+                        </select>
                     </div>
 
                     {/* Table */}
-                    <div className="bg-white rounded-lg shadow-sm border">
-                        <table className="w-full">
-                            <thead className="bg-gray-50 border-b">
+                    <div className="bg-white rounded-2xl shadow border overflow-x-auto">
+                        <table className="w-full min-w-[700px]">
+                            <thead className="bg-blue-50 border-b">
                                 <tr>
-                                    <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Khóa học</th>
-                                    <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Giảng viên</th>
-                                    <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Học viên</th>
-                                    <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Ngày tạo</th>
-                                    <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Trạng thái</th>
-                                    <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Thao tác</th>
+                                    <th className="px-6 py-3 text-xs font-bold text-gray-600 uppercase text-left">Khóa học</th>
+                                    <th className="px-6 py-3 text-xs font-bold text-gray-600 uppercase text-left">Giảng viên</th>
+                                    <th className="px-6 py-3 text-xs font-bold text-gray-600 uppercase text-center">Học viên</th>
+                                    <th className="px-6 py-3 text-xs font-bold text-gray-600 uppercase text-center">Trạng thái</th>
+                                    <th className="px-6 py-3 text-xs font-bold text-gray-600 uppercase text-center">Thao tác</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y">
+                            <tbody>
                                 {loading ? (
-                                    <tr><td colSpan="6" className="py-8 text-center">Đang tải...</td></tr>
-                                ) : currentCourses.length === 0 ? (
-                                    <tr><td colSpan="6" className="py-8 text-center text-gray-500">Không có khóa học nào</td></tr>
+                                    <tr>
+                                        <td colSpan="5" className="py-12 text-center text-blue-500 animate-pulse">
+                                            Đang tải...
+                                        </td>
+                                    </tr>
+                                ) : courses.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="5" className="py-12 text-center text-gray-400">
+                                            Không có khóa học nào
+                                        </td>
+                                    </tr>
                                 ) : (
-                                    currentCourses.map(c => (
-                                        <tr key={c.id} className="hover:bg-gray-50">
-                                            <td className="px-6 py-4">{c.title}</td>
-                                            <td className="px-6 py-4">{c.teacher}</td>
-                                            <td className="px-6 py-4">{c.studentsCount}</td>
-                                            <td className="px-6 py-4">
-                                                {c.createAt ? new Date(c.createAt).toLocaleDateString('vi-VN') : "Chưa có"}
+                                    courses.map((c) => (
+                                        <tr key={c.id} className="hover:bg-blue-50 transition">
+                                            <td className="px-6 py-4 flex items-center gap-3">
+                                                <img src={Quiz1} alt="Course" className="w-10 h-10 rounded shadow border" />
+                                                <span className="font-semibold text-gray-800">{c.title}</span>
                                             </td>
-                                            <td className="px-6 py-4">{getStatusBadge(c.status)}</td>
-                                            <td className="px-6 py-4 flex gap-2">
-                                                <button onClick={() => openModal("view", c)} className="p-1 text-blue-600"><Eye size={16} /></button>
-                                                <button onClick={() => openModal("edit", c)} className="p-1 text-green-600"><Edit size={16} /></button>
-                                                <button onClick={() => handleDeleteCourse(c.id)} className="p-1 text-red-600"><Trash2 size={16} /></button>
+                                            <td className="px-6 py-4">{c.teacher}</td>
+                                            <td className="px-6 py-4 text-center">{c.studentsCount}</td>
+                                            <td className="px-6 py-4 text-center">{getStatusBadge(c.status)}</td>
+                                            <td className="px-6 py-4 flex gap-2 justify-center">
+                                                <button
+                                                    onClick={() => openModal("view", c)}
+                                                    className="p-2 rounded-full bg-blue-50 text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                                >
+                                                    <Eye size={16} />
+                                                </button>
+                                                <button
+                                                    onClick={() => openModal("edit", c)}
+                                                    className="p-2 rounded-full bg-green-50 text-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
+                                                >
+                                                    <Edit size={16} />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteCourse(c.id)}
+                                                    className="p-2 rounded-full bg-red-50 text-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
                                             </td>
                                         </tr>
                                     ))
@@ -221,14 +234,35 @@ const CourseManagement = () => {
 
                         {/* Pagination */}
                         {totalPages > 1 && (
-                            <div className="px-6 py-4 border-t flex justify-between">
-                                <div>Hiển thị {indexOfFirstCourse + 1}-{Math.min(indexOfLastCourse, filteredCourses.length)} / {filteredCourses.length}</div>
+                            <div className="px-6 py-4 border-t flex justify-between items-center">
+                                <div className="text-gray-500 text-sm">
+                                    Trang {currentPage} / {totalPages} ({totalItems} khóa học)
+                                </div>
                                 <div className="flex gap-2">
-                                    <button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1}>Trước</button>
+                                    <button
+                                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                                        disabled={currentPage === 1}
+                                        className="px-3 py-1 rounded bg-gray-100 hover:bg-blue-100 disabled:opacity-50"
+                                    >
+                                        Trước
+                                    </button>
                                     {Array.from({ length: totalPages }, (_, i) => (
-                                        <button key={i} onClick={() => setCurrentPage(i + 1)} className={currentPage === i + 1 ? "font-bold" : ""}>{i + 1}</button>
+                                        <button
+                                            key={i}
+                                            onClick={() => setCurrentPage(i + 1)}
+                                            className={`px-3 py-1 rounded ${currentPage === i + 1 ? "bg-blue-500 text-white font-bold" : "bg-gray-100 hover:bg-blue-100"
+                                                }`}
+                                        >
+                                            {i + 1}
+                                        </button>
                                     ))}
-                                    <button onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages}>Sau</button>
+                                    <button
+                                        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                                        disabled={currentPage === totalPages}
+                                        className="px-3 py-1 rounded bg-gray-100 hover:bg-blue-100 disabled:opacity-50"
+                                    >
+                                        Sau
+                                    </button>
                                 </div>
                             </div>
                         )}
@@ -236,61 +270,93 @@ const CourseManagement = () => {
                 </div>
             </main>
 
-            {/* Modal (Add/Edit/View) */}
+            {/* Modal */}
             {showModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6">
-                        <h2 className="text-xl font-bold mb-4">
+                <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 relative">
+                        <button
+                            onClick={() => setShowModal(false)}
+                            className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-blue-600 transition-all"
+                        >
+                            <X size={20} />
+                        </button>
+
+                        <h2 className="text-2xl font-bold mb-6 text-blue-700">
                             {modalMode === "add" && "Thêm khóa học"}
                             {modalMode === "edit" && "Chỉnh sửa khóa học"}
                             {modalMode === "view" && "Chi tiết khóa học"}
                         </h2>
 
-                        {modalMode === "view" ? (
-                            <div>
-                                <p><strong>Tên:</strong> {selectedCourse?.title}</p>
-                                <p><strong>Mô tả:</strong> {selectedCourse?.description}</p>
-                                <p><strong>Giảng viên:</strong> {selectedCourse?.teacher}</p>
-                                <p><strong>Số học viên:</strong> {selectedCourse?.studentsCount}</p>
+                        {modalMode === "view" && selectedCourse ? (
+                            <div className="space-y-3">
+                                <p><b>Tên:</b> {selectedCourse.title}</p>
+                                <p><b>Mô tả:</b> {selectedCourse.description}</p>
+                                <p><b>Giảng viên:</b> {selectedCourse.teacher}</p>
+                                <p><b>Số học viên:</b> {selectedCourse.studentsCount}</p>
+                                <p><b>Trạng thái:</b> {getStatusBadge(selectedCourse.status)}</p>
                             </div>
                         ) : (
-                            <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4">
-                                <input
-                                    type="text"
-                                    placeholder="Tên khóa học"
-                                    value={formData.title}
-                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                    required
-                                />
-                                <textarea
-                                    placeholder="Mô tả"
-                                    value={formData.description}
-                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                />
-                                <input
-                                    type="text"
-                                    placeholder="Giảng viên"
-                                    value={formData.teacher}
-                                    onChange={(e) => setFormData({ ...formData, teacher: e.target.value })}
-                                    required
-                                />
-                                <input
-                                    type="number"
-                                    placeholder="Số học viên"
-                                    value={formData.studentsCount}
-                                    onChange={(e) => setFormData({ ...formData, studentsCount: e.target.value })}
-                                />
-                                <select
-                                    value={formData.status}
-                                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                                >
-                                    <option value="active">Hoạt động</option>
-                                    <option value="inactive">Không hoạt động</option>
-                                </select>
-
+                            <form onSubmit={handleSubmit} className="grid gap-4">
+                                <div>
+                                    <label className="block text-gray-700 font-medium mb-1">Tên khóa học</label>
+                                    <input
+                                        type="text"
+                                        value={formData.title}
+                                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                        className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-400"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-gray-700 font-medium mb-1">Mô tả</label>
+                                    <textarea
+                                        value={formData.description}
+                                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                        className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-400"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-gray-700 font-medium mb-1">Giảng viên</label>
+                                    <input
+                                        type="text"
+                                        value={formData.teacher}
+                                        onChange={(e) => setFormData({ ...formData, teacher: e.target.value })}
+                                        className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-400"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-gray-700 font-medium mb-1">Số học viên</label>
+                                    <input
+                                        type="number"
+                                        value={formData.studentsCount}
+                                        onChange={(e) => setFormData({ ...formData, studentsCount: e.target.value })}
+                                        className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-400"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-gray-700 font-medium mb-1">Trạng thái</label>
+                                    <select
+                                        value={formData.status}
+                                        onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                                        className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-blue-400"
+                                    >
+                                        <option value="active">Hoạt động</option>
+                                        <option value="inactive">Không hoạt động</option>
+                                    </select>
+                                </div>
                                 <div className="flex justify-end gap-3 mt-4">
-                                    <button type="button" onClick={() => setShowModal(false)}>Hủy</button>
-                                    <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowModal(false)}
+                                        className="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700"
+                                    >
+                                        Hủy
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="px-5 py-2 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 shadow"
+                                    >
                                         {modalMode === "add" ? "Thêm" : "Cập nhật"}
                                     </button>
                                 </div>
