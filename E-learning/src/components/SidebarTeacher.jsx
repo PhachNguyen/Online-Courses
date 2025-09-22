@@ -57,6 +57,12 @@ const SidebarTeacher = () => {
             path: "/dashboardTeacher/students"
         },
         {
+            key: "course",
+            label: "Quản lý khóa học",
+            icon: Users,
+            path: "/dashboardTeacher/course"
+        },
+        {
             key: "statistics",
             label: "Thống kê",
             icon: BarChart3,

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import Sidebar from "../../components/SidebarAdmin";
+import Sidebar from "../../../components/SidebarAdmin";
 import {
     Search, Plus, Edit, Trash2, Eye, Filter, X
 } from "lucide-react";
-import api from "../../config/AxiosConfig";
-import Quiz1 from "../../assets/images/quiz/Quiz1.jpg";
+import api from "../../../config/AxiosConfig";
+// import Quiz1 from "../../assets/images/quiz/Quiz1.jpg";
 
 const CourseManagement = () => {
     const [courses, setCourses] = useState([]);
@@ -200,7 +200,7 @@ const CourseManagement = () => {
                                     courses.map((c) => (
                                         <tr key={c.id} className="hover:bg-blue-50 transition">
                                             <td className="px-6 py-4 flex items-center gap-3">
-                                                <img src={Quiz1} alt="Course" className="w-10 h-10 rounded shadow border" />
+                                                {/* <img src={Quiz1} alt="Course" className="w-10 h-10 rounded shadow border" /> */}
                                                 <span className="font-semibold text-gray-800">{c.title}</span>
                                             </td>
                                             <td className="px-6 py-4">{c.teacher}</td>
